@@ -10,3 +10,4 @@ gtts_audio/
 spectrogram_cache/
 *.ipynb
 .ipynb_checkpoints/
+validated.tsv
