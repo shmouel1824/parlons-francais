@@ -1,0 +1,92 @@
+{% extends 'core/base.html' %}
+{% block title %}Dictée — Parle Français{% endblock %}
+{% block page_title %}La Dictée{% endblock %}
+{% block content %}
+
+<div class="card">
+  <div class="card-title">Exercice d'écoute</div>
+  <div class="card-sub">Appuyez sur lecture pour entendre le mot ou la phrase, puis tapez ce que vous entendez</div>
+
+  <div style="text-align:center;margin:30px 0;display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+    <button class="btn-primary" onclick="playDictee(1.0)">🔊 Écouter</button>
+    <button class="listen-btn"  onclick="playDictee(0.6)">🐢 Plus lentement</button>
+  </div>
+
+  <input type="text" class="dictee-input" id="dictee-input"
+         placeholder="Tapez ce que vous entendez…"
+         onkeydown="if(event.key==='Enter') checkDictee()" />
+
+  <div id="dictee-result" style="display:none;margin-top:24px;text-align:center">
+    <div style="font-family:'Playfair Display',serif;font-size:2rem;font-weight:700;margin-bottom:8px"
+         id="dictee-correct-text"></div>
+    <div id="dictee-feedback" style="font-size:0.9rem"></div>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn-primary" onclick="checkDictee()">Vérifier ✓</button>
+    <button class="listen-btn"  onclick="nextDictee()">Passer →</button>
+  </div>
+</div>
+
+{% endblock %}
+{% block extra_js %}
+<script>
+const dicteeItems = [
+  {% for ex in exercises %}
+  { id: {{ ex.id }}, text: "{{ ex.french_text }}", ipa: "{{ ex.ipa }}" },
+  {% endfor %}
+];
+
+const fallbackDictee = [
+  { id:null, text:'chat',      ipa:'/ʃa/' },
+  { id:null, text:'bonjour',   ipa:'/bɔ̃ʒuʁ/' },
+  { id:null, text:'croissant', ipa:'/kʁwasɑ̃/' },
+  { id:null, text:'trois',     ipa:'/tʁwa/' },
+  { id:null, text:'merci',     ipa:'/mɛʁsi/' },
+];
+
+const items = dicteeItems.length ? dicteeItems : fallbackDictee;
+let dIdx = 0;
+
+function playDictee(rate = 1.0) {
+  TTS.speak(items[dIdx].text, rate);
+}
+
+function checkDictee() {
+  const typed   = document.getElementById('dictee-input').value.trim().toLowerCase();
+  const correct = items[dIdx].text.toLowerCase();
+  const isOk    = typed === correct;
+  const resultEl = document.getElementById('dictee-result');
+
+  resultEl.style.display = 'block';
+  document.getElementById('dictee-correct-text').textContent = items[dIdx].text;
+  document.getElementById('dictee-feedback').innerHTML = isOk
+    ? `<span style="color:var(--green)">✅ Correct ! Vous avez bien entendu.</span>`
+    : `<span style="color:var(--red)">❌ Vous avez écrit "<em>${typed}</em>" — la bonne réponse est "<strong>${correct}</strong>"</span>`;
+
+  // Save to DB if exercise has ID
+  if (items[dIdx].id) {
+    const fd = new FormData();
+    fd.append('exercise_id', items[dIdx].id);
+    fd.append('typed_text', typed);
+    fetch(DJANGO_CONTEXT.apiDicteeUrl, {
+      method: 'POST',
+      headers: { 'X-CSRFToken': CSRF_TOKEN },
+      body: fd,
+    });
+  }
+
+  showToast(isOk ? '✓ Correct !' : `La réponse était "${correct}"`, isOk ? 'success' : 'error');
+}
+
+function nextDictee() {
+  dIdx = (dIdx + 1) % items.length;
+  document.getElementById('dictee-input').value   = '';
+  document.getElementById('dictee-result').style.display = 'none';
+  playDictee(1.0);
+}
+
+// Auto-play on load
+window.addEventListener('DOMContentLoaded', () => setTimeout(() => playDictee(), 800));
+</script>
+{% endblock %}

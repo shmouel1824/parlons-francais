@@ -1,0 +1,12 @@
+project_venv/
+db.sqlite3
+__pycache__/
+*.pyc
+media/
+staticfiles/
+cv-corpus-24.0/
+training_audio/
+gtts_audio/
+spectrogram_cache/
+*.ipynb
+.ipynb_checkpoints/

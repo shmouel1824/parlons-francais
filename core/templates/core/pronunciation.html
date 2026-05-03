@@ -1,0 +1,87 @@
+{% extends 'core/base.html' %}
+{% block content %}
+
+<div style="max-width:600px; margin:40px auto; text-align:center;">
+
+    <h2 style="font-size:2em; margin-bottom:10px;">
+        🎤 Practice:
+        <span style="color:#388bfd;">{{ exercise.french_text }}</span>
+    </h2>
+
+    <p style="color:#768390; margin-bottom:30px;">
+        {{ exercise.english_trans }}
+        &nbsp;·&nbsp;
+        Phoneme class: <strong>{{ exercise.phoneme_class }}</strong>
+    </p>
+
+    <button id="recordBtn" onclick="startRecording()"
+        style="background:#238636; color:white; border:none;
+               padding:16px 40px; border-radius:8px;
+               font-size:1.1em; cursor:pointer;">
+        🎙️ Start Recording
+    </button>
+
+    <div id="result" style="margin-top:30px; display:none;">
+        <div id="score-display"
+             style="font-size:4em; font-weight:bold; margin-bottom:10px;">
+        </div>
+        <div id="feedback-display" style="font-size:1.1em;"></div>
+    </div>
+
+    {% if attempts %}
+    <div style="margin-top:40px; text-align:left;">
+        <h4 style="margin-bottom:10px;">Your last 5 attempts:</h4>
+        {% for a in attempts %}
+        <div style="padding:8px 0; border-bottom:1px solid #30363d;">
+            Score: <strong>{{ a.score }}%</strong> —
+            {% if a.correct %}
+                ✅ Correct
+            {% else %}
+                ❌ Model detected: <em>{{ a.predicted }}</em>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+</div>
+
+<script>
+let mediaRecorder, chunks = [];
+
+async function startRecording() {
+    const btn    = document.getElementById('recordBtn');
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    mediaRecorder = new MediaRecorder(stream);
+    chunks = [];
+    mediaRecorder.ondataavailable = e => chunks.push(e.data);
+    mediaRecorder.onstop          = sendAudio;
+    mediaRecorder.start();
+    btn.textContent      = '⏹️ Stop Recording';
+    btn.onclick          = () => mediaRecorder.stop();
+    btn.style.background = '#da3633';
+}
+
+async function sendAudio() {
+    const blob = new Blob(chunks, { type: 'audio/webm' });
+    const form = new FormData();
+    form.append('audio', blob, 'attempt.webm');
+
+    const res  = await fetch('{% url "score" exercise.id %}',
+                             { method: 'POST', body: form });
+    const data = await res.json();
+
+    document.getElementById('result').style.display         = 'block';
+    document.getElementById('score-display').textContent    = data.score + '%';
+    document.getElementById('score-display').style.color    = data.score >= 70
+                                                              ? '#3fb950' : '#f0883e';
+    document.getElementById('feedback-display').textContent = data.feedback;
+
+    const btn            = document.getElementById('recordBtn');
+    btn.textContent      = '🎙️ Try Again';
+    btn.onclick          = startRecording;
+    btn.style.background = '#238636';
+}
+</script>
+
+{% endblock %}

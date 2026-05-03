@@ -1,0 +1,988 @@
+/* ============================================================
+   Parle Français — Main Stylesheet
+   core/static/core/css/style.css
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
+
+/* ── CSS Variables ─────────────────────────────────────────── */
+:root {
+  --bg:      #0a0a0f;
+  --bg2:     #12121a;
+  --bg3:     #1a1a26;
+  --card:    #1e1e2e;
+  --card2:   #252538;
+  --border:  rgba(255,255,255,0.07);
+  --accent:  #4f8ef7;
+  --accent2: #7c5cbf;
+  --gold:    #f0c060;
+  --green:   #4ecb71;
+  --red:     #f05060;
+  --text:    #e8e8f0;
+  --muted:   #888899;
+}
+
+/* ── Reset ─────────────────────────────────────────────────── */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+a { text-decoration: none; color: inherit; }
+
+/* ── Background glow ───────────────────────────────────────── */
+body::before {
+  content: '';
+  position: fixed; inset: 0; z-index: 0;
+  background:
+    radial-gradient(ellipse 80% 50% at 20% 20%, rgba(79,142,247,0.06) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 80%, rgba(124,92,191,0.07) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+/* ── App Layout ────────────────────────────────────────────── */
+#app {
+  position: relative; z-index: 1;
+  display: flex; min-height: 100vh;
+}
+
+/* ============================================================
+   SIDEBAR
+   ============================================================ */
+.sidebar {
+  width: 240px;
+  background: var(--bg2);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0; left: 0; bottom: 0;
+  z-index: 100;
+  overflow-y: auto;
+}
+
+.sidebar-logo {
+  padding: 28px 24px 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.logo-text {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.5rem;
+  font-weight: 900;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1.1;
+}
+
+.logo-flag {
+  display: flex;
+  gap: 3px;
+  margin-top: 8px;
+}
+
+.logo-flag span {
+  width: 16px; height: 11px;
+  border-radius: 2px;
+}
+
+.nav-section {
+  padding: 16px 16px 6px;
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  margin: 2px 8px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--muted);
+  transition: all 0.2s;
+  border: 1px solid transparent;
+}
+
+.nav-item:hover {
+  background: var(--card);
+  color: var(--text);
+}
+
+.nav-item.active {
+  background: linear-gradient(135deg, rgba(79,142,247,0.15), rgba(124,92,191,0.1));
+  color: var(--accent);
+  border-color: rgba(79,142,247,0.2);
+}
+
+.nav-icon {
+  font-size: 1.1rem;
+  width: 22px;
+  text-align: center;
+}
+
+.nav-badge {
+  margin-left: auto;
+  background: var(--accent);
+  color: white;
+  font-size: 0.6rem;
+  padding: 2px 7px;
+  border-radius: 20px;
+  font-weight: 700;
+}
+
+.sidebar-bottom {
+  margin-top: auto;
+  padding: 16px 12px;
+  border-top: 1px solid var(--border);
+}
+
+.user-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--card);
+  cursor: pointer;
+}
+
+.avatar {
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: white;
+  flex-shrink: 0;
+}
+
+.user-name  { font-size: 0.82rem; font-weight: 600; }
+.user-level { font-size: 0.65rem; color: var(--muted); margin-top: 1px; }
+
+/* ============================================================
+   MAIN CONTENT
+   ============================================================ */
+.main {
+  margin-left: 240px;
+  flex: 1;
+  min-height: 100vh;
+}
+
+/* ── Top Bar ───────────────────────────────────────────────── */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 40px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+.topbar-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+.streak-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(240,192,96,0.1);
+  border: 1px solid rgba(240,192,96,0.3);
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--gold);
+}
+
+.model-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  background: rgba(78,203,113,0.1);
+  border: 1px solid rgba(78,203,113,0.25);
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--green);
+}
+
+.status-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--green);
+  animation: blink 2s infinite;
+}
+
+@keyframes blink {
+  0%,100% { opacity: 1; }
+  50%      { opacity: 0.3; }
+}
+
+/* ── Content Area ──────────────────────────────────────────── */
+.content {
+  padding: 40px;
+  max-width: 960px;
+}
+
+/* ============================================================
+   CARDS
+   ============================================================ */
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 28px;
+  margin-bottom: 20px;
+}
+
+.card-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.card-sub {
+  font-size: 0.82rem;
+  color: var(--muted);
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+
+/* ============================================================
+   HOME — HERO
+   ============================================================ */
+.hero {
+  background: linear-gradient(135deg, rgba(79,142,247,0.1), rgba(124,92,191,0.08));
+  border: 1px solid rgba(79,142,247,0.15);
+  border-radius: 20px;
+  padding: 44px;
+  margin-bottom: 28px;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero::after {
+  content: '🇫🇷';
+  position: absolute;
+  right: 36px; top: 50%;
+  transform: translateY(-50%);
+  font-size: 5rem;
+  opacity: 0.18;
+}
+
+.hero h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.4rem;
+  font-weight: 900;
+  line-height: 1.2;
+  margin-bottom: 14px;
+}
+
+.hero p {
+  color: var(--muted);
+  font-size: 0.92rem;
+  max-width: 480px;
+  line-height: 1.7;
+}
+
+/* ── Module Cards Grid ─────────────────────────────────────── */
+.modules-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.module-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 24px;
+  cursor: pointer;
+  transition: all 0.25s;
+}
+
+.module-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(79,142,247,0.3);
+  box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+}
+
+.module-icon { font-size: 2rem; margin-bottom: 12px; }
+.module-name { font-weight: 700; font-size: 0.9rem; margin-bottom: 4px; }
+.module-desc { font-size: 0.75rem; color: var(--muted); line-height: 1.4; }
+
+.module-progress {
+  margin-top: 14px;
+  height: 3px;
+  background: var(--card2);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.module-progress-fill {
+  height: 100%;
+  border-radius: 10px;
+  background: linear-gradient(90deg, var(--accent), var(--accent2));
+  transition: width 0.6s ease;
+}
+
+/* ============================================================
+   EXERCISE AREA
+   ============================================================ */
+.exercise-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.back-btn {
+  background: var(--card);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 8px 18px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.82rem;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.back-btn:hover { background: var(--card2); }
+
+.progress-track {
+  flex: 1;
+  height: 6px;
+  background: var(--card2);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--accent2));
+  border-radius: 10px;
+  transition: width 0.4s;
+}
+
+.step-counter { font-size: 0.8rem; color: var(--muted); white-space: nowrap; }
+
+/* ── Target Display ────────────────────────────────────────── */
+.target-display {
+  background: linear-gradient(135deg, var(--card), var(--card2));
+  border: 2px solid rgba(79,142,247,0.2);
+  border-radius: 20px;
+  padding: 50px;
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.target-word {
+  font-family: 'Playfair Display', serif;
+  font-size: 4rem;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  background: linear-gradient(135deg, var(--text), rgba(232,232,240,0.7));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.target-ipa {
+  font-family: 'DM Mono', monospace;
+  font-size: 1.2rem;
+  color: var(--accent);
+  margin-top: 10px;
+}
+
+.target-translation {
+  font-size: 0.9rem;
+  color: var(--muted);
+  margin-top: 10px;
+}
+
+/* ── Mic Area ──────────────────────────────────────────────── */
+.mic-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  margin: 28px 0;
+}
+
+.mic-btn {
+  width: 80px; height: 80px;
+  border-radius: 50%;
+  border: none;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  cursor: pointer;
+  font-size: 1.8rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  box-shadow: 0 4px 20px rgba(79,142,247,0.3);
+}
+
+.mic-btn:hover { transform: scale(1.05); box-shadow: 0 6px 30px rgba(79,142,247,0.4); }
+
+.mic-btn.recording {
+  animation: pulse-mic 1.2s infinite;
+  background: linear-gradient(135deg, var(--red), #c0203a);
+}
+
+@keyframes pulse-mic {
+  0%   { box-shadow: 0 0 0 0 rgba(240,80,96,0.5); }
+  70%  { box-shadow: 0 0 0 20px rgba(240,80,96,0); }
+  100% { box-shadow: 0 0 0 0 rgba(240,80,96,0); }
+}
+
+.mic-hint { font-size: 0.82rem; color: var(--muted); }
+
+/* ── Waveform ──────────────────────────────────────────────── */
+.waveform {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  height: 44px;
+}
+
+.wave-bar {
+  width: 4px;
+  background: var(--accent);
+  border-radius: 2px;
+  opacity: 0.25;
+  transition: height 0.08s;
+}
+
+.wave-bar.active { opacity: 1; }
+
+/* ── Score Display ─────────────────────────────────────────── */
+.score-display {
+  background: var(--card);
+  border: 2px solid transparent;
+  border-radius: 16px;
+  padding: 30px;
+  text-align: center;
+  display: none;
+  transition: all 0.4s;
+}
+
+.score-display.show { display: block; }
+.score-display.pass { border-color: var(--green); }
+.score-display.fail { border-color: var(--red); }
+
+.score-number {
+  font-family: 'Playfair Display', serif;
+  font-size: 4.5rem;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.score-display.pass .score-number { color: var(--green); }
+.score-display.fail .score-number { color: var(--red); }
+
+.score-label   { font-size: 1.1rem; font-weight: 700; margin-top: 6px; }
+.score-feedback { font-size: 0.85rem; color: var(--muted); margin-top: 8px; }
+
+/* ── Phoneme Chips ─────────────────────────────────────────── */
+.phoneme-breakdown {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 16px;
+}
+
+.phoneme-chip {
+  padding: 5px 14px;
+  border-radius: 20px;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.phoneme-chip.ok  { background: rgba(78,203,113,0.15); color: var(--green); border: 1px solid rgba(78,203,113,0.3); }
+.phoneme-chip.bad { background: rgba(240,80,96,0.15);  color: var(--red);   border: 1px solid rgba(240,80,96,0.3); }
+
+/* ============================================================
+   ALPHABET GRID
+   ============================================================ */
+.alphabet-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.letter-tile {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px 8px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+}
+
+.letter-tile:hover {
+  border-color: rgba(79,142,247,0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+}
+
+.letter-tile.done {
+  border-color: rgba(78,203,113,0.35);
+  background: rgba(78,203,113,0.06);
+}
+
+.letter-char {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.8rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.letter-ipa {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.62rem;
+  color: var(--accent);
+  margin-top: 4px;
+}
+
+.letter-check {
+  position: absolute;
+  top: 5px; right: 7px;
+  font-size: 0.65rem;
+  color: var(--green);
+}
+
+/* ============================================================
+   PHONEME GROUPS
+   ============================================================ */
+.phoneme-groups {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+}
+
+.phoneme-group-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 18px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+}
+
+.phoneme-group-card:hover {
+  border-color: rgba(124,92,191,0.4);
+  background: rgba(124,92,191,0.06);
+  transform: translateY(-2px);
+}
+
+.pg-text    { font-family: 'Playfair Display', serif; font-size: 1.6rem; font-weight: 700; color: var(--accent2); }
+.pg-example { font-size: 0.75rem; color: var(--muted); margin-top: 4px; }
+.pg-ipa     { font-family: 'DM Mono', monospace; font-size: 0.72rem; color: var(--accent); margin-top: 3px; }
+
+/* ============================================================
+   BUTTONS
+   ============================================================ */
+.btn-primary {
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  border: none;
+  color: white;
+  padding: 12px 30px;
+  border-radius: 40px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 700;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(79,142,247,0.35);
+  color: white;
+}
+
+.listen-btn {
+  background: rgba(79,142,247,0.1);
+  border: 1px solid rgba(79,142,247,0.3);
+  color: var(--accent);
+  padding: 9px 22px;
+  border-radius: 40px;
+  cursor: pointer;
+  font-size: 0.84rem;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 600;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+}
+
+.listen-btn:hover { background: rgba(79,142,247,0.2); transform: scale(1.02); color: var(--accent); }
+
+.btn-row {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-top: 20px;
+  flex-wrap: wrap;
+}
+
+/* ============================================================
+   STATS PAGE
+   ============================================================ */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.stat-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 24px;
+  text-align: center;
+}
+
+.stat-number {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.6rem;
+  font-weight: 900;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1;
+}
+
+.stat-label { font-size: 0.78rem; color: var(--muted); margin-top: 6px; font-weight: 500; }
+
+/* ── Bar Chart ─────────────────────────────────────────────── */
+.bar-chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  height: 110px;
+  padding: 0 4px;
+}
+
+.bar-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  height: 100%;
+  justify-content: flex-end;
+}
+
+.bar-fill {
+  width: 100%;
+  background: linear-gradient(to top, var(--accent), rgba(124,92,191,0.7));
+  border-radius: 4px 4px 0 0;
+  min-height: 4px;
+  transition: height 0.8s ease;
+}
+
+.bar-label { font-size: 0.65rem; color: var(--muted); }
+
+/* ============================================================
+   AUTH PAGE
+   ============================================================ */
+.auth-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+}
+
+.auth-wrap { width: 100%; max-width: 440px; }
+
+.auth-logo { text-align: center; margin-bottom: 32px; }
+
+.auth-logo h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.2rem; font-weight: 900;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.auth-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 36px;
+}
+
+.tabs {
+  display: flex;
+  background: var(--card2);
+  border-radius: 10px;
+  padding: 4px;
+  margin-bottom: 28px;
+}
+
+.tab {
+  flex: 1; padding: 9px; text-align: center; border-radius: 8px;
+  cursor: pointer; font-size: 0.875rem; font-weight: 600;
+  color: var(--muted); transition: all 0.2s;
+}
+
+.tab.active {
+  background: var(--card);
+  color: var(--text);
+  box-shadow: 0 1px 8px rgba(0,0,0,0.3);
+}
+
+.form-group { margin-bottom: 18px; }
+
+.form-label {
+  display: block;
+  font-size: 0.75rem; font-weight: 700; color: var(--muted);
+  text-transform: uppercase; letter-spacing: 0.08em;
+  margin-bottom: 7px;
+}
+
+.form-input {
+  width: 100%;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 11px 14px;
+  border-radius: 10px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.form-input:focus { border-color: rgba(79,142,247,0.5); }
+.form-input::placeholder { color: var(--muted); opacity: 0.6; }
+
+/* ── Voice Password Box ────────────────────────────────────── */
+.voice-password-box {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 22px;
+  text-align: center;
+  margin-top: 8px;
+}
+
+.vp-word {
+  font-family: 'Playfair Display', serif;
+  font-size: 2rem; font-weight: 700;
+  color: var(--accent); margin: 10px 0;
+}
+
+.vp-instructions { font-size: 0.8rem; color: var(--muted); line-height: 1.6; margin-bottom: 16px; }
+
+.mic-record-btn {
+  width: 68px; height: 68px;
+  border-radius: 50%; border: none;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  cursor: pointer; font-size: 1.5rem;
+  display: inline-flex; align-items: center; justify-content: center;
+  transition: all 0.2s;
+  box-shadow: 0 4px 20px rgba(79,142,247,0.3);
+}
+
+.mic-record-btn:hover { transform: scale(1.06); }
+
+.mic-record-btn.recording {
+  animation: pulse-mic 1.2s infinite;
+  background: linear-gradient(135deg, var(--red), #c0203a);
+}
+
+.waveform-mini {
+  display: flex; align-items: center; justify-content: center;
+  gap: 3px; height: 28px; margin: 10px 0;
+}
+
+.voice-status {
+  margin-top: 10px; font-size: 0.82rem; color: var(--muted); min-height: 18px;
+}
+
+.voice-status.active  { color: var(--red); }
+.voice-status.success { color: var(--green); }
+
+.btn-submit {
+  width: 100%;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  border: none; color: white; padding: 13px; border-radius: 40px;
+  cursor: pointer; font-size: 0.95rem; font-family: 'DM Sans', sans-serif;
+  font-weight: 700; transition: all 0.2s; margin-top: 8px;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+
+.btn-submit:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(79,142,247,0.35); }
+.btn-submit:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+.divider {
+  text-align: center; color: var(--muted); font-size: 0.75rem;
+  margin: 18px 0; position: relative;
+}
+
+.divider::before {
+  content: ''; position: absolute; left: 0; right: 0; top: 50%;
+  height: 1px; background: var(--border);
+}
+
+.divider span { background: var(--card); padding: 0 12px; position: relative; }
+
+/* ============================================================
+   QUIZ PAGE
+   ============================================================ */
+.quiz-card {
+  background: linear-gradient(135deg, rgba(79,142,247,0.08), rgba(124,92,191,0.06));
+  border: 1px solid rgba(79,142,247,0.15);
+  border-radius: 20px;
+  padding: 50px;
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.quiz-lang-badge {
+  display: inline-block;
+  padding: 4px 14px;
+  background: rgba(240,192,96,0.12);
+  border: 1px solid rgba(240,192,96,0.3);
+  color: var(--gold);
+  border-radius: 20px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 18px;
+}
+
+.quiz-word {
+  font-family: 'Playfair Display', serif;
+  font-size: 3.5rem;
+  font-weight: 900;
+}
+
+/* ============================================================
+   DICTEE PAGE
+   ============================================================ */
+.dictee-input {
+  width: 100%;
+  background: var(--bg3);
+  border: 2px solid var(--border);
+  color: var(--text);
+  padding: 16px 20px;
+  border-radius: 14px;
+  font-family: 'Playfair Display', serif;
+  font-size: 1.3rem;
+  outline: none;
+  transition: border-color 0.2s;
+  text-align: center;
+  margin-top: 20px;
+}
+
+.dictee-input:focus { border-color: rgba(79,142,247,0.5); }
+.dictee-input::placeholder { color: var(--muted); opacity: 0.5; }
+
+/* ============================================================
+   TOAST
+   ============================================================ */
+.toast {
+  position: fixed;
+  bottom: 28px; right: 28px;
+  padding: 14px 22px;
+  border-radius: 12px;
+  font-size: 0.875rem; font-weight: 600;
+  transform: translateX(200%);
+  transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1);
+  z-index: 9999;
+  display: flex; align-items: center; gap: 10px;
+  max-width: 320px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+}
+
+.toast.show    { transform: translateX(0); }
+.toast.success { background: rgba(78,203,113,0.95);  color: #fff; }
+.toast.error   { background: rgba(240,80,96,0.95);   color: #fff; }
+.toast.info    { background: rgba(79,142,247,0.95);  color: #fff; }
+
+/* ============================================================
+   XP BAR
+   ============================================================ */
+.xp-bar-wrap {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 0.8rem; color: var(--muted);
+}
+
+.xp-bar {
+  width: 110px; height: 6px;
+  background: var(--card2); border-radius: 10px; overflow: hidden;
+}
+
+.xp-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--accent2));
+  border-radius: 10px;
+  transition: width 0.5s ease;
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 900px) {
+  .modules-grid      { grid-template-columns: repeat(2, 1fr); }
+  .phoneme-groups    { grid-template-columns: repeat(3, 1fr); }
+  .stats-grid        { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 700px) {
+  .sidebar           { transform: translateX(-100%); }
+  .main              { margin-left: 0; }
+  .alphabet-grid     { grid-template-columns: repeat(5, 1fr); }
+  .modules-grid      { grid-template-columns: 1fr; }
+  .content           { padding: 20px; }
+  .topbar            { padding: 14px 20px; }
+}

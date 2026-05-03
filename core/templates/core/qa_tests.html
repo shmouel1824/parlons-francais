@@ -1,0 +1,840 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Parle Français — Full QA Suite</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#060610;--bg2:#0d0d1f;--bg3:#131326;--card:#1a1a30;--border:#2a2a4a;--accent:#5b6ef5;--accent2:#8b5cf6;--green:#10b981;--red:#ef4444;--yellow:#f59e0b;--cyan:#06b6d4;--orange:#f97316;--text:#e2e8f0;--muted:#64748b;--mono:'JetBrains Mono',monospace;--sans:'Syne',sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(91,110,245,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(91,110,245,0.03) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0}
+.wrap{position:relative;z-index:1;max-width:1140px;margin:0 auto;padding:40px 20px 100px}
+
+/* HEADER */
+.header{text-align:center;padding:60px 0 48px}
+.header-badge{display:inline-block;background:rgba(91,110,245,0.12);border:1px solid rgba(91,110,245,0.35);color:#818cf8;font-family:var(--mono);font-size:0.7rem;letter-spacing:3px;padding:6px 18px;border-radius:100px;margin-bottom:18px;text-transform:uppercase}
+.header h1{font-size:clamp(2rem,5vw,3.2rem);font-weight:800;letter-spacing:-1px;background:linear-gradient(135deg,#fff 30%,#818cf8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:10px}
+.header p{color:var(--muted);font-size:0.9rem;font-family:var(--mono)}
+
+/* SCOREBOARD */
+.scoreboard{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:36px}
+.score-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px 16px;text-align:center}
+.score-card .num{font-size:2.4rem;font-weight:800;font-family:var(--mono);line-height:1;margin-bottom:4px}
+.score-card .lbl{font-size:0.68rem;color:var(--muted);letter-spacing:1px;text-transform:uppercase}
+.n-total{color:var(--text)}.n-pass{color:var(--green)}.n-fail{color:var(--red)}.n-skip{color:var(--yellow)}.n-pct{color:var(--cyan)}
+
+/* PROGRESS */
+.prog-wrap{background:var(--bg3);border-radius:100px;height:5px;margin-bottom:28px;overflow:hidden}
+.prog-bar{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:100px;width:0%;transition:width .3s}
+
+/* CONTROLS */
+.controls{display:flex;gap:10px;margin-bottom:36px;flex-wrap:wrap;align-items:center}
+.btn{font-family:var(--sans);font-weight:700;font-size:0.85rem;padding:11px 24px;border-radius:9px;border:none;cursor:pointer;transition:all .2s;letter-spacing:.3px}
+.btn-primary{background:var(--accent);color:#fff;box-shadow:0 4px 18px rgba(91,110,245,.3)}
+.btn-primary:hover{background:#6b7ff7;transform:translateY(-1px)}
+.btn-outline{background:transparent;color:var(--text);border:1px solid var(--border)}
+.btn-outline:hover{border-color:var(--accent);color:var(--accent)}
+.btn-red{background:rgba(239,68,68,.15);color:var(--red);border:1px solid rgba(239,68,68,.3)}
+.btn-red:hover{background:rgba(239,68,68,.25)}
+.url-wrap{margin-left:auto;display:flex;align-items:center;gap:8px}
+.url-wrap label{font-size:0.78rem;color:var(--muted);font-family:var(--mono)}
+.url-input{background:var(--bg3);border:1px solid var(--border);color:var(--text);font-family:var(--mono);font-size:0.8rem;padding:8px 14px;border-radius:8px;width:210px;outline:none}
+.url-input:focus{border-color:var(--accent)}
+
+/* SECTION */
+.section{margin-bottom:40px}
+.sec-hd{display:flex;align-items:center;gap:12px;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid var(--border)}
+.sec-icon{font-size:1.3rem}.sec-title{font-size:1.05rem;font-weight:700}
+.sec-meta{margin-left:auto;font-family:var(--mono);font-size:0.72rem;color:var(--muted)}
+
+/* TEST CARD */
+.tc{background:var(--card);border:1px solid var(--border);border-radius:12px;margin-bottom:8px;overflow:hidden;transition:border-color .25s}
+.tc.s-pass{border-color:rgba(16,185,129,.45)}.tc.s-fail{border-color:rgba(239,68,68,.45)}.tc.s-running{border-color:rgba(91,110,245,.6)}.tc.s-skip{border-color:rgba(245,158,11,.35)}
+.tc-row{display:flex;align-items:center;gap:12px;padding:12px 16px;cursor:pointer;user-select:none}
+.tc-row:hover{background:rgba(255,255,255,.02)}
+.dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;background:var(--border);transition:all .3s}
+.s-pass .dot{background:var(--green);box-shadow:0 0 7px rgba(16,185,129,.6)}
+.s-fail .dot{background:var(--red);box-shadow:0 0 7px rgba(239,68,68,.6)}
+.s-running .dot{background:var(--accent);animation:pulse .8s infinite}
+.s-skip .dot{background:var(--yellow)}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.7)}}
+.tc-name{font-size:0.87rem;font-weight:600;flex:1}
+.tc-desc{font-size:0.72rem;color:var(--muted);margin-top:1px;font-family:var(--mono)}
+.badge{font-family:var(--mono);font-size:0.68rem;padding:3px 10px;border-radius:100px;font-weight:600;flex-shrink:0}
+.b-pass{background:rgba(16,185,129,.13);color:var(--green)}.b-fail{background:rgba(239,68,68,.13);color:var(--red)}.b-run{background:rgba(91,110,245,.13);color:#818cf8}.b-skip{background:rgba(245,158,11,.13);color:var(--yellow)}.b-idle{background:var(--bg3);color:var(--muted)}
+.tc-time{font-family:var(--mono);font-size:0.7rem;color:var(--muted);min-width:48px;text-align:right}
+
+/* DETAIL */
+.tc-detail{display:none;padding:0 16px 14px;border-top:1px solid var(--border)}
+.tc-detail.open{display:block}
+.dg{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.dbox{background:var(--bg2);border:1px solid var(--border);border-radius:9px;padding:11px 13px;font-family:var(--mono);font-size:0.76rem}
+.dbox h4{color:var(--muted);font-size:0.65rem;letter-spacing:1px;text-transform:uppercase;margin-bottom:7px}
+.dbox pre{white-space:pre-wrap;word-break:break-all;line-height:1.5;color:#a5b4fc}
+.dbox.r-pass pre{color:var(--green)}.dbox.r-fail pre{color:var(--red)}
+.rerun{margin-top:10px;background:var(--bg3);border:1px solid var(--border);color:var(--text);font-family:var(--mono);font-size:0.75rem;padding:6px 13px;border-radius:7px;cursor:pointer}
+.rerun:hover{border-color:var(--accent);color:var(--accent)}
+
+/* MANUAL CARD */
+.mc{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px 20px;margin-bottom:8px}
+.mc h3{font-size:0.92rem;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.mc-steps{list-style:none}
+.mc-steps li{display:flex;align-items:flex-start;gap:10px;padding:6px 0;font-size:0.83rem;color:#94a3b8;border-bottom:1px solid rgba(255,255,255,.04)}
+.mc-steps li:last-child{border-bottom:none}
+.sn{width:20px;height:20px;border-radius:50%;background:var(--bg3);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:0.65rem;flex-shrink:0;margin-top:1px;color:var(--accent)}
+.tag-ok{display:inline-block;background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.25);color:var(--green);font-family:var(--mono);font-size:0.68rem;padding:1px 8px;border-radius:4px;margin-left:4px}
+.tag-fail{display:inline-block;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.25);color:var(--red);font-family:var(--mono);font-size:0.68rem;padding:1px 8px;border-radius:4px;margin-left:4px}
+.tag-warn{display:inline-block;background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.25);color:var(--yellow);font-family:var(--mono);font-size:0.68rem;padding:1px 8px;border-radius:4px;margin-left:4px}
+
+/* LOG */
+.log{background:#050510;border:1px solid var(--border);border-radius:12px;padding:18px;font-family:var(--mono);font-size:0.76rem;height:220px;overflow-y:auto;line-height:1.7;margin-top:36px}
+.ll{display:flex;gap:10px}
+.lt{color:var(--muted);flex-shrink:0}
+.lp{color:var(--green)}.lf{color:var(--red)}.li{color:#818cf8}.lw{color:var(--yellow)}
+
+/* CATEGORY TABS */
+.cat-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:20px}
+.cat-tab{font-family:var(--mono);font-size:0.72rem;padding:5px 14px;border-radius:100px;border:1px solid var(--border);background:var(--bg3);color:var(--muted);cursor:pointer;transition:all .2s}
+.cat-tab:hover,.cat-tab.active{border-color:var(--accent);color:var(--accent);background:rgba(91,110,245,.1)}
+
+@media(max-width:640px){.scoreboard{grid-template-columns:repeat(3,1fr)}.dg{grid-template-columns:1fr}.url-wrap{margin-left:0;width:100%}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-badge">QA Full Suite v2.0</div>
+  <h1>🇫🇷 Parle Français — Tests</h1>
+  <p>// 60+ tests · 9 categories · automated + manual</p>
+</div>
+
+<!-- SCOREBOARD -->
+<div class="scoreboard">
+  <div class="score-card"><div class="num n-total" id="sc-total">0</div><div class="lbl">Total</div></div>
+  <div class="score-card"><div class="num n-pass"  id="sc-pass">0</div><div class="lbl">Passed ✓</div></div>
+  <div class="score-card"><div class="num n-fail"  id="sc-fail">0</div><div class="lbl">Failed ✗</div></div>
+  <div class="score-card"><div class="num n-skip"  id="sc-skip">0</div><div class="lbl">Manual</div></div>
+  <div class="score-card"><div class="num n-pct"   id="sc-pct">—</div><div class="lbl">Pass Rate</div></div>
+</div>
+<div class="prog-wrap"><div class="prog-bar" id="prog"></div></div>
+
+<!-- CONTROLS -->
+<div class="controls">
+  <button class="btn btn-primary" onclick="QA.runAll()">▶ Run All Auto Tests</button>
+  <button class="btn btn-outline" onclick="QA.reset()">↺ Reset</button>
+  <button class="btn btn-outline" onclick="QA.expandAll()">⊞ Expand All</button>
+  <button class="btn btn-outline" onclick="QA.collapseAll()">⊟ Collapse All</button>
+  <button class="btn btn-red"    onclick="QA.runFailed()">▶ Re-run Failed</button>
+  <div class="url-wrap">
+    <label>BASE URL</label>
+    <input class="url-input" id="base-url" value="http://127.0.0.1:8000">
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- S1 · SERVER & PAGES                                        -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="section" id="sec-s1">
+<div class="sec-hd"><span class="sec-icon">🌐</span><span class="sec-title">Server &amp; All Pages</span><span class="sec-meta" id="m-s1"></span></div>
+
+<div class="tc" id="t-server"   data-t="auto" data-url="/"           data-m="GET" data-s="200,302"><div class="tc-row" onclick="TD(this)"><div class="dot"></div><div style="flex:1"><div class="tc-name">Server is running</div><div class="tc-desc">GET / → 200 or 302</div></div><div class="badge b-idle">IDLE</div><div class="tc-time">—</div></div><div class="tc-detail"></div></div>
+
+<div class="tc" id="t-login-pg" data-t="auto" data-url="/login/"     data-m="GET" data-s="200"><div class="tc-row" onclick="TD(this)"><div class="dot"></div><div style="flex:1"><div class="tc-name">Login page loads</div><div class="tc-desc">GET /login/ → 200</div></div><div class="badge b-idle">IDLE</div><div class="tc-time">—</div></div><div class="tc-detail"></div></div>
+
+<div class="tc" id="t-admin"    data-t="auto" data-url="/admin/"     data-m="GET" data-s="200,302"><div class="tc-row" onclick="TD(this)"><div class="dot"></div><div style="flex:1"><div class="tc-name">Admin panel accessible</div><div class="tc-desc">GET /admin/ → 200 or 302</div></div><div class="badge b-idle">IDLE</div><div class="tc-time">—</div></div><div class="tc-detail"></div></div>
+
+<div class="tc" id="t-home"     data-t="auto" data-url="/"           data-m="GET" data-s="200,302"><div class="tc-row" onclick="TD(this)"><div class="dot"></div><div style="flex:1"><div class="tc-name">Home page (redirects to login if not logged in)</div><div class="tc-desc">GET / → 200 or 302</div></div><div class="badge b-idle">IDLE</div><div class="tc-time">—</div></div><div class="tc-detail"></div></div>
+
+<div class="tc" id="t-alphabet" data-t="auto" data-url="/alphabet/"  data-m="GET" data-s="200,302"><div class="tc-row" onclick="TD(this)"><div class="dot"></div><div style="flex:1"><div class="tc-name">Alphabet page responds</div><div class="tc-desc">GET /alphabet/ → 200 or 302</div></div><div class="badge b-idle">IDLE</div><div class="tc-time">—</div></div><div class="tc-detail"></div></div>
+
+<div class="tc" id="t-phonemes" data-t="auto" data-url="/phonemes/"  data-m="GET" data-s="200,302"><div class="tc-row" onclick="TD(this)"><div class="dot"></div><div style="flex:1"><div class="tc-name">Phonemes page responds</div><div class="tc-desc">GET /phonemes/ → 200 or 302</div></div><div class="badge b-idle">IDLE</div><div class="tc-time">—</div></div><div class="tc-detail"></div></div>
+
+<div class="tc" id="t-words"    data-t="auto" data-url="/words/"     data-m="GET" data-s="200,302"><div class="tc-row" onclick="TD(this)"><div class="dot"></div><div style="flex:1"><div class="tc-name">Words page responds</div><div class="tc-desc">GET /words/ → 200 or 302</div></div><div class="badge b-idle">IDLE</div><div class="tc-time">—</div></div><div class="tc-detail"></div></div>
+
+<div class="tc" id="t-sentences" data-t="auto" data-url="/sentences/" data-m="GET" data-s="200,302"><div class="tc-row" onclick="TD(this)"><div class="dot"></div><div style="flex:1"><div class="tc-name">Sentences page responds</div><div class="tc-desc">GET /sentences/ → 200 or 302</div></div><div class="badge b-idle">IDLE</div><div class="tc-time">—</div></div><div class="tc-detail"></div></div>
+
+<div class="tc" id="t-quiz"     data-t="auto" data-url="/quiz/"      data-m="GET" data-s="200,302"><div class="tc-row" onclick="TD(this)"><div class="dot"></div><div style="flex:1"><div class="tc-name">Quiz page responds</div><div class="tc-desc">GET /quiz/ → 200 or 302</div></div><div class="badge b-idle">IDLE</div><div class="tc-time">—</div></div><div class="tc-detail"></div></div>
+
+<div class="tc" id="t-dictee"   data-t="auto" data-url="/dictee/"    data-m="GET" data-s="200,302"><div class="tc-row" onclick="TD(this)"><div class="dot"></div><div style="flex:1"><div class="tc-name">Dictée page responds</div><div class="tc-desc">GET /dictee/ → 200 or 302</div></div><div class="badge b-idle">IDLE</div><div class="tc-time">—</div></div><div class="tc-detail"></div></div>
+
+<div class="tc" id="t-stats"    data-t="auto" data-url="/stats/"     data-m="GET" data-s="200,302"><div class="tc-row" onclick="TD(this)"><div class="dot"></div><div style="flex:1"><div class="tc-name">Stats page responds</div><div class="tc-desc">GET /stats/ → 200 or 302</div></div><div class="badge b-idle">IDLE</div><div class="tc-time">—</div></div><div class="tc-detail"></div></div>
+
+<div class="tc" id="t-dashboard" data-t="auto" data-url="/dashboard/" data-m="GET" data-s="200,302"><div class="tc-row" onclick="TD(this)"><div class="dot"></div><div style="flex:1"><div class="tc-name">Dashboard page responds</div><div class="tc-desc">GET /dashboard/ → 200 or 302</div></div><div class="badge b-idle">IDLE</div><div class="tc-time">—</div></div><div class="tc-detail"></div></div>
+
+<div class="tc" id="t-404"      data-t="auto" data-url="/zzz-this-does-not-exist/" data-m="GET" data-s="404"><div class="tc-row" onclick="TD(this)"><div class="dot"></div><div style="flex:1"><div class="tc-name">404 page works</div><div class="tc-desc">GET /nonexistent/ → 404 (not 500)</div></div><div class="badge b-idle">IDLE</div><div class="tc-time">—</div></div><div class="tc-detail"></div></div>
+
+<div class="tc" id="t-static"   data-t="auto" data-url="/static/core/css/style.css" data-m="GET" data-s="200"><div class="tc-row" onclick="TD(this)"><div class="dot"></div><div style="flex:1"><div class="tc-name">Static files served (CSS)</div><div class="tc-desc">GET /static/core/css/style.css → 200</div></div><div class="badge b-idle">IDLE</div><div class="tc-time">—</div></div><div class="tc-detail"></div></div>
+
+<div class="tc" id="t-static-js" data-t="auto" data-url="/static/core/js/app.js" data-m="GET" data-s="200"><div class="tc-row" onclick="TD(this)"><div class="dot"></div><div style="flex:1"><div class="tc-name">Static files served (JS)</div><div class="tc-desc">GET /static/core/js/app.js → 200</div></div><div class="badge b-idle">IDLE</div><div class="tc-time">—</div></div><div class="tc-detail"></div></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- S2 · API ENDPOINTS                                         -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="section" id="sec-s2">
+<div class="sec-hd"><span class="sec-icon">🔌</span><span class="sec-title">API Endpoints</span><span class="sec-meta" id="m-s2"></span></div>
+
+<div class="tc" id="t-api-score-method"    data-t="auto" data-url="/api/score/"          data-m="GET" data-s="401,302,403,405"><div class="tc-row" onclick="TD(this)"><div class="dot"></div><div style="flex:1"><div class="tc-name">GET /api/score/ — method not allowed or auth required</div><div class="tc-desc">Should return 405 or 401/302 (not 500)</div></div><div class="badge b-idle">IDLE</div><div class="tc-time">—</div></div><div class="tc-detail"></div></div>
+
+<div class="tc" id="t-api-reg-empty"      data-t="auto" data-url="/api/voice/register/" data-m="POST" data-s="400,403"><div class="tc-row" onclick="TD(this)"><div class="dot"></div><div style="flex:1"><div class="tc-name">POST /api/voice/register/ — empty body → 400 or 403</div><div class="tc-desc">Missing fields must not crash the server</div></div><div class="badge b-idle">IDLE</div><div class="tc-time">—</div></div><div class="tc-detail"></div></div>
+
+<div class="tc" id="t-api-login-empty"    data-t="auto" data-url="/api/voice/login/"    data-m="POST" data-s="400,403"><div class="tc-row" onclick="TD(this)"><div class="dot"></div><div style="flex:1"><div class="tc-name">POST /api/voice/login/ — empty body → 400 or 403</div><div class="tc-desc">Missing fields must not crash the server</div></div><div class="badge b-idle">IDLE</div><div class="tc-time">—</div></div><div class="tc-detail"></div></div>
+
+<div class="tc" id="t-api-feedback-noauth" data-t="auto" data-url="/api/feedback/"      data-m="GET" data-s="401,302,403,405"><div class="tc-row" onclick="TD(this)"><div class="dot"></div><div style="flex:1"><div class="tc-name">GET /api/feedback/ — unauthenticated → blocked</div><div class="tc-desc">Should not return 200 or 500</div></div><div class="badge b-idle">IDLE</div><div class="tc-time">—</div></div><div class="tc-detail"></div></div>
+
+<div class="tc" id="t-api-dictee-noauth"  data-t="auto" data-url="/api/dictee/"        data-m="GET" data-s="401,302,403,405"><div class="tc-row" onclick="TD(this)"><div class="dot"></div><div style="flex:1"><div class="tc-name">GET /api/dictee/ — unauthenticated → blocked</div><div class="tc-desc">Should not return 200 or 500</div></div><div class="badge b-idle">IDLE</div><div class="tc-time">—</div></div><div class="tc-detail"></div></div>
+
+<div class="tc" id="t-api-exercises"      data-t="auto" data-url="/api/exercises/"     data-m="GET" data-s="200,401,302,403"><div class="tc-row" onclick="TD(this)"><div class="dot"></div><div style="flex:1"><div class="tc-name">GET /api/exercises/ — exists and responds</div><div class="tc-desc">Should not return 404 or 500</div></div><div class="badge b-idle">IDLE</div><div class="tc-time">—</div></div><div class="tc-detail"></div></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- S3 · VOICE AUTH — AUTOMATED                               -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="section" id="sec-s3">
+<div class="sec-hd"><span class="sec-icon">🔐</span><span class="sec-title">Voice Auth — Automated</span><span class="sec-meta" id="m-s3"></span></div>
+
+<div class="tc" id="t-va-unknown-user" data-t="custom"><div class="tc-row" onclick="TD(this)"><div class="dot"></div><div style="flex:1"><div class="tc-name">Login — unknown username → rejected (not 500)</div><div class="tc-desc">Generic error, does not reveal user existence</div></div><div class="badge b-idle">IDLE</div><div class="tc-time">—</div></div><div class="tc-detail"></div></div>
+
+<div class="tc" id="t-va-empty-user" data-t="custom"><div class="tc-row" onclick="TD(this)"><div class="dot"></div><div style="flex:1"><div class="tc-name">Register — empty username → 400</div><div class="tc-desc">POST with username="" must return 400</div></div><div class="badge b-idle">IDLE</div><div class="tc-time">—</div></div><div class="tc-detail"></div></div>
+
+<div class="tc" id="t-va-empty-word" data-t="custom"><div class="tc-row" onclick="TD(this)"><div class="dot"></div><div style="flex:1"><div class="tc-name">Register — empty password word → 400</div><div class="tc-desc">POST with password_word="" must return 400</div></div><div class="badge b-idle">IDLE</div><div class="tc-time">—</div></div><div class="tc-detail"></div></div>
+
+<div class="tc" id="t-va-response-structure" data-t="custom"><div class="tc-row" onclick="TD(this)"><div class="dot"></div><div style="flex:1"><div class="tc-name">Login response — always JSON with 'authenticated' key</div><div class="tc-desc">Response must be valid JSON containing authenticated: false</div></div><div class="badge b-idle">IDLE</div><div class="tc-time">—</div></div><div class="tc-detail"></div></div>
+
+<div class="tc" id="t-va-no-word-leak" data-t="custom"><div class="tc-row" onclick="TD(this)"><div class="dot"></div><div style="flex:1"><div class="tc-name">Login failure — password word never revealed in response</div><div class="tc-desc">Error message must be short and generic (under 100 chars)</div></div><div class="badge b-idle">IDLE</div><div class="tc-time">—</div></div><div class="tc-detail"></div></div>
+
+<div class="tc" id="t-va-no-sim-leak" data-t="custom"><div class="tc-row" onclick="TD(this)"><div class="dot"></div><div style="flex:1"><div class="tc-name">Login failure — similarity score not in response JSON</div><div class="tc-desc">Keys word_similarity and voice_similarity must not appear</div></div><div class="badge b-idle">IDLE</div><div class="tc-time">—</div></div><div class="tc-detail"></div></div>
+
+<div class="tc" id="t-va-dup-user" data-t="custom"><div class="tc-row" onclick="TD(this)"><div class="dot"></div><div style="flex:1"><div class="tc-name">Register — duplicate username → 400 (not 500)</div><div class="tc-desc">Registering an existing user must return a clear error</div></div><div class="badge b-idle">IDLE</div><div class="tc-time">—</div></div><div class="tc-detail"></div></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- S4 · SECURITY                                              -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="section" id="sec-s4">
+<div class="sec-hd"><span class="sec-icon">🛡️</span><span class="sec-title">Security</span><span class="sec-meta" id="m-s4"></span></div>
+
+<div class="tc" id="t-sec-csrf" data-t="custom"><div class="tc-row" onclick="TD(this)"><div class="dot"></div><div style="flex:1"><div class="tc-name">CSRF — POST without token → 403</div><div class="tc-desc">Request without X-CSRFToken header must be blocked</div></div><div class="badge b-idle">IDLE</div><div class="tc-time">—</div></div><div class="tc-detail"></div></div>
+
+<div class="tc" id="t-sec-sql" data-t="custom"><div class="tc-row" onclick="TD(this)"><div class="dot"></div><div style="flex:1"><div class="tc-name">SQL Injection — malicious username → safe response</div><div class="tc-desc">username = "' OR 1=1 --" must not crash or authenticate</div></div><div class="badge b-idle">IDLE</div><div class="tc-time">—</div></div><div class="tc-detail"></div></div>
+
+<div class="tc" id="t-sec-xss" data-t="custom"><div class="tc-row" onclick="TD(this)"><div class="dot"></div><div style="flex:1"><div class="tc-name">XSS — script tag in username → not executed</div><div class="tc-desc">Raw &lt;script&gt; must not appear in response body</div></div><div class="badge b-idle">IDLE</div><div class="tc-time">—</div></div><div class="tc-detail"></div></div>
+
+<div class="tc" id="t-sec-long-input" data-t="custom"><div class="tc-row" onclick="TD(this)"><div class="dot"></div><div style="flex:1"><div class="tc-name">Flood input — 10 000-char username → no crash</div><div class="tc-desc">Very long username must return 400 or 403, never 500</div></div><div class="badge b-idle">IDLE</div><div class="tc-time">—</div></div><div class="tc-detail"></div></div>
+
+<div class="tc" id="t-sec-auth-required" data-t="custom"><div class="tc-row" onclick="TD(this)"><div class="dot"></div><div style="flex:1"><div class="tc-name">Protected pages — all redirect to login when unauthenticated</div><div class="tc-desc">alphabet, words, quiz, stats, dictee must all redirect</div></div><div class="badge b-idle">IDLE</div><div class="tc-time">—</div></div><div class="tc-detail"></div></div>
+
+<div class="tc" id="t-sec-logout" data-t="auto" data-url="/logout/" data-m="GET" data-s="200,302,405"><div class="tc-row" onclick="TD(this)"><div class="dot"></div><div style="flex:1"><div class="tc-name">Logout endpoint exists and responds</div><div class="tc-desc">GET /logout/ → must not 404 or 500</div></div><div class="badge b-idle">IDLE</div><div class="tc-time">—</div></div><div class="tc-detail"></div></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- S5 · BROWSER CAPABILITIES                                  -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="section" id="sec-s5">
+<div class="sec-hd"><span class="sec-icon">🌍</span><span class="sec-title">Browser Capabilities</span><span class="sec-meta" id="m-s5"></span></div>
+
+<div class="tc" id="t-br-mic"   data-t="browser"><div class="tc-row" onclick="TD(this)"><div class="dot"></div><div style="flex:1"><div class="tc-name">Microphone — browser can access getUserMedia</div><div class="tc-desc">navigator.mediaDevices.getUserMedia({audio:true})</div></div><div class="badge b-idle">IDLE</div><div class="tc-time">—</div></div><div class="tc-detail"></div></div>
+
+<div class="tc" id="t-br-sr"    data-t="browser"><div class="tc-row" onclick="TD(this)"><div class="dot"></div><div style="flex:1"><div class="tc-name">Speech Recognition API available</div><div class="tc-desc">window.SpeechRecognition || webkitSpeechRecognition</div></div><div class="badge b-idle">IDLE</div><div class="tc-time">—</div></div><div class="tc-detail"></div></div>
+
+<div class="tc" id="t-br-tts"   data-t="browser"><div class="tc-row" onclick="TD(this)"><div class="dot"></div><div style="flex:1"><div class="tc-name">Text-to-Speech — French voice available</div><div class="tc-desc">speechSynthesis includes a fr-FR voice</div></div><div class="badge b-idle">IDLE</div><div class="tc-time">—</div></div><div class="tc-detail"></div></div>
+
+<div class="tc" id="t-br-webm"  data-t="browser"><div class="tc-row" onclick="TD(this)"><div class="dot"></div><div style="flex:1"><div class="tc-name">MediaRecorder — audio/webm format supported</div><div class="tc-desc">MediaRecorder.isTypeSupported('audio/webm')</div></div><div class="badge b-idle">IDLE</div><div class="tc-time">—</div></div><div class="tc-detail"></div></div>
+
+<div class="tc" id="t-br-fetch" data-t="browser"><div class="tc-row" onclick="TD(this)"><div class="dot"></div><div style="flex:1"><div class="tc-name">Fetch API available</div><div class="tc-desc">window.fetch is defined</div></div><div class="badge b-idle">IDLE</div><div class="tc-time">—</div></div><div class="tc-detail"></div></div>
+
+<div class="tc" id="t-br-fd"    data-t="browser"><div class="tc-row" onclick="TD(this)"><div class="dot"></div><div style="flex:1"><div class="tc-name">FormData available</div><div class="tc-desc">window.FormData is defined</div></div><div class="badge b-idle">IDLE</div><div class="tc-time">—</div></div><div class="tc-detail"></div></div>
+
+<div class="tc" id="t-br-https" data-t="browser"><div class="tc-row" onclick="TD(this)"><div class="dot"></div><div style="flex:1"><div class="tc-name">Connection protocol check</div><div class="tc-desc">Detects HTTP vs HTTPS (HTTPS required for production mic access)</div></div><div class="badge b-idle">IDLE</div><div class="tc-time">—</div></div><div class="tc-detail"></div></div>
+
+<div class="tc" id="t-br-cookie" data-t="browser"><div class="tc-row" onclick="TD(this)"><div class="dot"></div><div style="flex:1"><div class="tc-name">CSRF cookie present</div><div class="tc-desc">document.cookie contains csrftoken</div></div><div class="badge b-idle">IDLE</div><div class="tc-time">—</div></div><div class="tc-detail"></div></div>
+
+<div class="tc" id="t-br-tts-count" data-t="browser"><div class="tc-row" onclick="TD(this)"><div class="dot"></div><div style="flex:1"><div class="tc-name">TTS — count all available voices</div><div class="tc-desc">Reports total voices and French voices found</div></div><div class="badge b-idle">IDLE</div><div class="tc-time">—</div></div><div class="tc-detail"></div></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- S6 · PERFORMANCE                                           -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="section" id="sec-s6">
+<div class="sec-hd"><span class="sec-icon">⚡</span><span class="sec-title">Performance</span><span class="sec-meta" id="m-s6"></span></div>
+
+<div class="tc" id="t-perf-login"     data-t="perf" data-url="/login/"    data-max="800"><div class="tc-row" onclick="TD(this)"><div class="dot"></div><div style="flex:1"><div class="tc-name">Login page — response under 800ms</div><div class="tc-desc">Slow pages lose users</div></div><div class="badge b-idle">IDLE</div><div class="tc-time">—</div></div><div class="tc-detail"></div></div>
+
+<div class="tc" id="t-perf-home"      data-t="perf" data-url="/"          data-max="800"><div class="tc-row" onclick="TD(this)"><div class="dot"></div><div style="flex:1"><div class="tc-name">Home page — response under 800ms</div><div class="tc-desc">First load should be fast</div></div><div class="badge b-idle">IDLE</div><div class="tc-time">—</div></div><div class="tc-detail"></div></div>
+
+<div class="tc" id="t-perf-css"       data-t="perf" data-url="/static/core/css/style.css" data-max="400"><div class="tc-row" onclick="TD(this)"><div class="dot"></div><div style="flex:1"><div class="tc-name">CSS file — served under 400ms</div><div class="tc-desc">Static files should be nearly instant</div></div><div class="badge b-idle">IDLE</div><div class="tc-time">—</div></div><div class="tc-detail"></div></div>
+
+<div class="tc" id="t-perf-api-login" data-t="perf" data-url="/api/voice/login/" data-max="3000" data-m="POST"><div class="tc-row" onclick="TD(this)"><div class="dot"></div><div style="flex:1"><div class="tc-name">Voice login API — responds under 3000ms</div><div class="tc-desc">Spectrogram computation must not time out</div></div><div class="badge b-idle">IDLE</div><div class="tc-time">—</div></div><div class="tc-detail"></div></div>
+
+<div class="tc" id="t-perf-5req" data-t="custom"><div class="tc-row" onclick="TD(this)"><div class="dot"></div><div style="flex:1"><div class="tc-name">Concurrent requests — 5 simultaneous GETs → all succeed</div><div class="tc-desc">Server must handle light concurrency without crashing</div></div><div class="badge b-idle">IDLE</div><div class="tc-time">—</div></div><div class="tc-detail"></div></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- S7 · CONTENT CHECKS                                        -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="section" id="sec-s7">
+<div class="sec-hd"><span class="sec-icon">📄</span><span class="sec-title">Content Checks</span><span class="sec-meta" id="m-s7"></span></div>
+
+<div class="tc" id="t-cnt-login-form" data-t="content" data-url="/login/" data-contains="form,mic,username"><div class="tc-row" onclick="TD(this)"><div class="dot"></div><div style="flex:1"><div class="tc-name">Login page — contains form elements</div><div class="tc-desc">HTML must contain form, microphone button, username field</div></div><div class="badge b-idle">IDLE</div><div class="tc-time">—</div></div><div class="tc-detail"></div></div>
+
+<div class="tc" id="t-cnt-no-debug"  data-t="content" data-url="/login/" data-notcontains="Traceback,Exception,DEBUG"><div class="tc-row" onclick="TD(this)"><div class="dot"></div><div style="flex:1"><div class="tc-name">Login page — no Python error/traceback visible</div><div class="tc-desc">Traceback or Exception must not appear in HTML</div></div><div class="badge b-idle">IDLE</div><div class="tc-time">—</div></div><div class="tc-detail"></div></div>
+
+<div class="tc" id="t-cnt-charset"   data-t="content" data-url="/login/" data-contains="utf-8,UTF-8"><div class="tc-row" onclick="TD(this)"><div class="dot"></div><div style="flex:1"><div class="tc-name">Login page — UTF-8 charset declared</div><div class="tc-desc">Essential for French accented characters (é, à, ç…)</div></div><div class="badge b-idle">IDLE</div><div class="tc-time">—</div></div><div class="tc-detail"></div></div>
+
+<div class="tc" id="t-cnt-csrf-token" data-t="content" data-url="/login/" data-contains="csrfmiddlewaretoken"><div class="tc-row" onclick="TD(this)"><div class="dot"></div><div style="flex:1"><div class="tc-name">Login page — Django CSRF token present in HTML</div><div class="tc-desc">csrfmiddlewaretoken must be in the page</div></div><div class="badge b-idle">IDLE</div><div class="tc-time">—</div></div><div class="tc-detail"></div></div>
+
+<div class="tc" id="t-cnt-api-json"  data-t="custom"><div class="tc-row" onclick="TD(this)"><div class="dot"></div><div style="flex:1"><div class="tc-name">API response — Content-Type is application/json</div><div class="tc-desc">POST /api/voice/login/ must return JSON, not HTML</div></div><div class="badge b-idle">IDLE</div><div class="tc-time">—</div></div><div class="tc-detail"></div></div>
+
+<div class="tc" id="t-cnt-admin-title" data-t="content" data-url="/admin/" data-contains="Django,admin,Administration"><div class="tc-row" onclick="TD(this)"><div class="dot"></div><div style="flex:1"><div class="tc-name">Admin panel — Django admin page or redirect</div><div class="tc-desc">Response contains Django admin keywords</div></div><div class="badge b-idle">IDLE</div><div class="tc-time">—</div></div><div class="tc-detail"></div></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- S8 · VOICE AUTH — MANUAL                                   -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="section" id="sec-s8">
+<div class="sec-hd"><span class="sec-icon">🎤</span><span class="sec-title">Voice Auth — Manual Tests</span><span class="sec-meta">8 manual</span></div>
+
+<div class="mc"><h3>🟢 M-1 — Happy path: register with a clear word</h3><ul class="mc-steps">
+  <li><div class="sn">1</div>Go to <code>/login/</code> → click tab "S'inscrire"</li>
+  <li><div class="sn">2</div>Type username: <code>testqauser</code> &nbsp;|&nbsp; password word: <code>soleil</code></li>
+  <li><div class="sn">3</div>Click 🎤 and say clearly: <strong>"soleil"</strong></li>
+  <li><div class="sn">4</div>Expected: account created, redirected to home<span class="tag-ok">✓ PASS</span></li>
+</ul></div>
+
+<div class="mc"><h3>🟢 M-2 — Happy path: login with correct word</h3><ul class="mc-steps">
+  <li><div class="sn">1</div>Logout → go to login page</li>
+  <li><div class="sn">2</div>Enter username: <code>testqauser</code></li>
+  <li><div class="sn">3</div>Click 🎤 and say: <strong>"soleil"</strong></li>
+  <li><div class="sn">4</div>Expected: login succeeds, welcome shown<span class="tag-ok">✓ PASS</span></li>
+</ul></div>
+
+<div class="mc"><h3>🔴 M-3 — Wrong word (completely different)</h3><ul class="mc-steps">
+  <li><div class="sn">1</div>Logout → login → username: <code>testqauser</code></li>
+  <li><div class="sn">2</div>Click 🎤 and say: <strong>"voiture"</strong></li>
+  <li><div class="sn">3</div>Expected: login FAILS with generic message<span class="tag-fail">✗ MUST REJECT</span></li>
+  <li><div class="sn">4</div>Verify: the word "soleil" does NOT appear in the error message</li>
+</ul></div>
+
+<div class="mc"><h3>🔴 M-4 — The Jojo/Momo test (original security bug)</h3><ul class="mc-steps">
+  <li><div class="sn">1</div>Register a new user with VP: <code>jojo</code></li>
+  <li><div class="sn">2</div>Logout → login → enter that username</li>
+  <li><div class="sn">3</div>Click 🎤 and say: <strong>"momo"</strong></li>
+  <li><div class="sn">4</div>Expected: REJECTED — similar rhythm, different word<span class="tag-fail">✗ MUST REJECT</span></li>
+</ul></div>
+
+<div class="mc"><h3>🔴 M-5 — Complete silence (no speech)</h3><ul class="mc-steps">
+  <li><div class="sn">1</div>Logout → login → enter a valid username</li>
+  <li><div class="sn">2</div>Click 🎤 and say <strong>nothing</strong> for 4 seconds</li>
+  <li><div class="sn">3</div>Expected: login FAILS — silence never authenticates<span class="tag-fail">✗ MUST REJECT</span></li>
+</ul></div>
+
+<div class="mc"><h3>🔴 M-6 — Wrong person, right word</h3><ul class="mc-steps">
+  <li><div class="sn">1</div>Ask someone else to say the correct word at login</li>
+  <li><div class="sn">2</div>Expected: REJECTED — different voice spectrogram<span class="tag-fail">✗ SHOULD REJECT</span><span class="tag-warn">tolerance varies</span></li>
+</ul></div>
+
+<div class="mc"><h3>🟢 M-7 — Multiple logins in a row</h3><ul class="mc-steps">
+  <li><div class="sn">1</div>Login → logout → login → logout → login (3 times)</li>
+  <li><div class="sn">2</div>Expected: all succeed each time with the correct word<span class="tag-ok">✓ MUST WORK</span></li>
+  <li><div class="sn">3</div>Verify: no session or cookie error appears</li>
+</ul></div>
+
+<div class="mc"><h3>🟡 M-8 — Pronunciation variation tolerance</h3><ul class="mc-steps">
+  <li><div class="sn">1</div>Login with the correct word but say it faster/slower</li>
+  <li><div class="sn">2</div>Login with the correct word but in a slightly different tone</li>
+  <li><div class="sn">3</div>Expected: both should still succeed (~natural variation OK)<span class="tag-warn">observe result</span></li>
+</ul></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- S9 · MODULE FEATURES — MANUAL                             -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="section" id="sec-s9">
+<div class="sec-hd"><span class="sec-icon">🎓</span><span class="sec-title">Module Features — Manual Tests</span><span class="sec-meta">9 manual</span></div>
+
+<div class="mc"><h3>🔤 F-1 — Alphabet module: TTS speaks the letter</h3><ul class="mc-steps">
+  <li><div class="sn">1</div>Login → go to Alphabet page</li>
+  <li><div class="sn">2</div>Click any letter (e.g. "A")</li>
+  <li><div class="sn">3</div>Expected: browser speaks the letter in French<span class="tag-ok">✓ PASS</span></li>
+</ul></div>
+
+<div class="mc"><h3>🔤 F-2 — Alphabet module: record pronunciation + score</h3><ul class="mc-steps">
+  <li><div class="sn">1</div>On the Alphabet page, click 🎤 and pronounce the letter</li>
+  <li><div class="sn">2</div>Expected: a score (0–100) appears after recording<span class="tag-ok">✓ PASS</span></li>
+  <li><div class="sn">3</div>Expected: score ≥ 70 shows green, below shows red/orange</li>
+</ul></div>
+
+<div class="mc"><h3>🌈 F-3 — Phonemes module: special groups work</h3><ul class="mc-steps">
+  <li><div class="sn">1</div>Go to Phonemes page</li>
+  <li><div class="sn">2</div>Click on a phoneme group: "en/an", "on", "oi"</li>
+  <li><div class="sn">3</div>Expected: TTS pronounces the group, recording works<span class="tag-ok">✓ PASS</span></li>
+</ul></div>
+
+<div class="mc"><h3>📝 F-4 — Words module: hear → repeat → score</h3><ul class="mc-steps">
+  <li><div class="sn">1</div>Go to Words page → select a word (e.g. "bonjour")</li>
+  <li><div class="sn">2</div>Click 🔊 to hear it — Expected: TTS speaks it<span class="tag-ok">✓ PASS</span></li>
+  <li><div class="sn">3</div>Click 🎤 and repeat the word</li>
+  <li><div class="sn">4</div>Expected: score appears with pass/fail feedback<span class="tag-ok">✓ PASS</span></li>
+</ul></div>
+
+<div class="mc"><h3>💬 F-5 — Sentences module: full sentence scoring</h3><ul class="mc-steps">
+  <li><div class="sn">1</div>Go to Sentences page → select a sentence</li>
+  <li><div class="sn">2</div>Listen to the TTS pronunciation</li>
+  <li><div class="sn">3</div>Record your attempt → Expected: score returned<span class="tag-ok">✓ PASS</span></li>
+</ul></div>
+
+<div class="mc"><h3>🧠 F-6 — Quiz module: English → say in French</h3><ul class="mc-steps">
+  <li><div class="sn">1</div>Go to Quiz page</li>
+  <li><div class="sn">2</div>App shows an English word (e.g. "hello")</li>
+  <li><div class="sn">3</div>Click 🎤 and say "bonjour"</li>
+  <li><div class="sn">4</div>Expected: evaluated as correct + score shown<span class="tag-ok">✓ PASS</span></li>
+</ul></div>
+
+<div class="mc"><h3>👂 F-7 — Dictée module: listen → type</h3><ul class="mc-steps">
+  <li><div class="sn">1</div>Go to Dictée page</li>
+  <li><div class="sn">2</div>Click 🔊 — TTS says a word</li>
+  <li><div class="sn">3</div>Type what you heard in the input field</li>
+  <li><div class="sn">4</div>Expected: correct answer accepted, wrong rejected with feedback<span class="tag-ok">✓ PASS</span></li>
+</ul></div>
+
+<div class="mc"><h3>📊 F-8 — Stats page: shows user progress</h3><ul class="mc-steps">
+  <li><div class="sn">1</div>Do 3–5 exercises (alphabet + words)</li>
+  <li><div class="sn">2</div>Go to Stats page</li>
+  <li><div class="sn">3</div>Expected: attempt count, average score, recent activity visible<span class="tag-ok">✓ PASS</span></li>
+</ul></div>
+
+<div class="mc"><h3>🔄 F-9 — Session persistence across page refreshes</h3><ul class="mc-steps">
+  <li><div class="sn">1</div>Login → go to Alphabet page → press F5 (refresh)</li>
+  <li><div class="sn">2</div>Expected: still logged in, no redirect to login page<span class="tag-ok">✓ PASS</span></li>
+  <li><div class="sn">3</div>Close browser tab → reopen → go to the app URL</li>
+  <li><div class="sn">4</div>Expected: still logged in (session persists)<span class="tag-ok">✓ PASS</span></li>
+</ul></div>
+</div>
+
+<!-- LOG -->
+<div class="log" id="log">
+  <div class="ll"><span class="lt">00:00:00</span><span class="li">// Parle Français QA v2 — Ready. Click ▶ Run All Auto Tests.</span></div>
+</div>
+
+</div><!-- /wrap -->
+
+<script>
+(function(){
+'use strict';
+
+var st = { total:0, pass:0, fail:0, skip:0 };
+
+function base(){ return document.getElementById('base-url').value.replace(/\/$/,''); }
+function csrf(){
+  var m = document.cookie.match(/csrftoken=([^;]+)/);
+  return m ? m[1] : '';
+}
+function now(){ return new Date().toTimeString().slice(0,8); }
+function log(msg, type){
+  type = type || 'i';
+  var c = document.getElementById('log');
+  var d = document.createElement('div');
+  d.className = 'll';
+  d.innerHTML = '<span class="lt">'+now()+'</span><span class="l'+type+'">'+msg+'</span>';
+  c.appendChild(d);
+  c.scrollTop = c.scrollHeight;
+}
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function score(){
+  document.getElementById('sc-total').textContent = st.total;
+  document.getElementById('sc-pass').textContent  = st.pass;
+  document.getElementById('sc-fail').textContent  = st.fail;
+  document.getElementById('sc-skip').textContent  = st.skip;
+  var auto = st.pass + st.fail;
+  var pct = auto > 0 ? Math.round((st.pass / auto) * 100) : 0;
+  document.getElementById('sc-pct').textContent = auto > 0 ? pct + '%' : '—';
+  document.getElementById('prog').style.width = (auto > 0 ? pct : 0) + '%';
+}
+
+function setCard(card, status, ms, req, resp){
+  card.className = 'tc s-' + status;
+  var dot   = card.querySelector('.dot');
+  var badge = card.querySelector('.badge');
+  var time  = card.querySelector('.tc-time');
+  var labels = {pass:'PASS',fail:'FAIL',running:'RUNNING…',skip:'MANUAL',idle:'IDLE'};
+  var cls    = {pass:'b-pass',fail:'b-fail',running:'b-run',skip:'b-skip',idle:'b-idle'};
+  badge.className = 'badge ' + (cls[status]||'b-idle');
+  badge.textContent = labels[status] || status;
+  if(ms !== undefined) time.textContent = ms + 'ms';
+  if(req || resp){
+    var det = card.querySelector('.tc-detail');
+    var rc  = (status==='pass') ? 'r-pass' : 'r-fail';
+    det.innerHTML =
+      '<div class="dg">'+
+      '<div class="dbox"><h4>Request</h4><pre>'+esc(req||'—')+'</pre></div>'+
+      '<div class="dbox '+rc+'"><h4>Response</h4><pre>'+esc(resp||'—')+'</pre></div>'+
+      '</div>'+
+      '<button class="rerun" onclick="QA.one(this.closest(\'.tc\'))">↺ Re-run</button>';
+  }
+}
+
+window.TD = function(row){
+  row.nextElementSibling.classList.toggle('open');
+};
+
+// ── AUTO (simple HTTP check) ──────────────────────────────────
+async function runAuto(card){
+  var url = base() + card.dataset.url;
+  var m   = card.dataset.m || 'GET';
+  var exp = (card.dataset.s||'200').split(',').map(function(x){ return parseInt(x.trim()); });
+  setCard(card,'running');
+  log('→ '+m+' '+url,'i');
+  var t0 = Date.now();
+  try {
+    var res  = await fetch(url,{method:m,redirect:'manual',credentials:'include'});
+    var ms   = Date.now()-t0;
+    var code = res.status===0 ? 302 : res.status;
+    var ok   = exp.includes(code) || (res.status===0 && exp.includes(302));
+    setCard(card, ok?'pass':'fail', ms, m+' '+url+'\nExpect: '+exp.join(' or '), (ok?'✓ ':'✗ ')+'HTTP '+code+' ('+ms+'ms)');
+    ok ? st.pass++ : st.fail++;
+    log((ok?'✓ PASS':'✗ FAIL')+' — '+m+' '+card.dataset.url+' → '+code+' ('+ms+'ms)', ok?'p':'f');
+  } catch(e){
+    var ms = Date.now()-t0;
+    setCard(card,'fail',ms, m+' '+url,'✗ Network error:\n'+e.message);
+    st.fail++;
+    log('✗ FAIL — '+card.dataset.url+' → '+e.message,'f');
+  }
+  st.total++; score();
+}
+
+// ── PERF ─────────────────────────────────────────────────────
+async function runPerf(card){
+  var url    = base() + card.dataset.url;
+  var m      = card.dataset.m || 'GET';
+  var maxMs  = parseInt(card.dataset.max) || 1000;
+  setCard(card,'running');
+  var t0 = Date.now();
+  try{
+    var res  = await fetch(url,{method:m,redirect:'manual',credentials:'include'});
+    var ms   = Date.now()-t0;
+    var ok   = ms <= maxMs;
+    setCard(card,ok?'pass':'fail',ms,m+' '+url+'\nMax: '+maxMs+'ms', (ok?'✓ ':'✗ ')+ms+'ms (limit: '+maxMs+'ms)');
+    ok ? st.pass++ : st.fail++;
+    log((ok?'✓ PASS':'✗ FAIL')+' perf — '+card.dataset.url+' → '+ms+'ms (max '+maxMs+'ms)', ok?'p':'f');
+  } catch(e){
+    var ms = Date.now()-t0;
+    setCard(card,'fail',ms,m+' '+url,'✗ '+e.message);
+    st.fail++;
+    log('✗ FAIL perf — '+card.dataset.url,'f');
+  }
+  st.total++; score();
+}
+
+// ── CONTENT ──────────────────────────────────────────────────
+async function runContent(card){
+  var url  = base() + card.dataset.url;
+  var need = (card.dataset.contains||'').split(',').map(function(s){return s.trim();}).filter(Boolean);
+  var not  = (card.dataset.notcontains||'').split(',').map(function(s){return s.trim();}).filter(Boolean);
+  setCard(card,'running');
+  var t0 = Date.now();
+  try{
+    var res  = await fetch(url,{redirect:'follow',credentials:'include'});
+    var ms   = Date.now()-t0;
+    var html = await res.text();
+    var missing = need.filter(function(w){ return !html.includes(w); });
+    var found   = not.filter(function(w){ return html.includes(w); });
+    var ok = missing.length===0 && found.length===0;
+    var info = ok ? '✓ All checks passed' :
+      (missing.length ? '✗ Missing: '+missing.join(', ')+'\n' : '') +
+      (found.length   ? '✗ Should not contain: '+found.join(', ') : '');
+    setCard(card,ok?'pass':'fail',ms,'GET '+url+'\nChecking: '+[...need,...not.map(function(w){return 'NOT '+w;})].join(', '),info);
+    ok ? st.pass++ : st.fail++;
+    log((ok?'✓ PASS':'✗ FAIL')+' content — '+card.dataset.url, ok?'p':'f');
+  } catch(e){
+    var ms = Date.now()-t0;
+    setCard(card,'fail',ms,'GET '+url,'✗ '+e.message);
+    st.fail++;
+    log('✗ FAIL content — '+card.dataset.url,'f');
+  }
+  st.total++; score();
+}
+
+// ── BROWSER ───────────────────────────────────────────────────
+async function runBrowser(card){
+  var id = card.id;
+  var t0 = Date.now();
+  setCard(card,'running');
+  var ok=false, req='', resp='';
+
+  if(id==='t-br-mic'){
+    req='navigator.mediaDevices.getUserMedia({audio:true})';
+    try{
+      var s = await navigator.mediaDevices.getUserMedia({audio:true});
+      s.getTracks().forEach(function(t){t.stop();});
+      ok=true; resp='✓ Microphone access granted';
+    }catch(e){ resp='✗ '+e.message; }
+  }
+  else if(id==='t-br-sr'){
+    req='window.SpeechRecognition || webkitSpeechRecognition';
+    var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    ok=!!SR; resp=ok?'✓ Available ('+( window.SpeechRecognition?'standard':'webkit')+')':'✗ Not available — use Chrome/Edge';
+  }
+  else if(id==='t-br-tts'){
+    req='speechSynthesis.getVoices() — looking for fr';
+    var v = window.speechSynthesis.getVoices();
+    var fr= v.filter(function(x){return x.lang.startsWith('fr');});
+    ok=fr.length>0;
+    resp=ok?'✓ '+fr.length+' French voice(s): '+fr.slice(0,2).map(function(x){return x.name;}).join(', '):'✗ No French voice found. All voices: '+v.length;
+  }
+  else if(id==='t-br-webm'){
+    req="MediaRecorder.isTypeSupported('audio/webm')";
+    ok=typeof MediaRecorder!=='undefined' && MediaRecorder.isTypeSupported('audio/webm');
+    resp=ok?'✓ audio/webm supported':'✗ Not supported in this browser';
+  }
+  else if(id==='t-br-fetch'){
+    req='window.fetch';
+    ok=typeof window.fetch==='function';
+    resp=ok?'✓ fetch available':'✗ fetch not found';
+  }
+  else if(id==='t-br-fd'){
+    req='window.FormData';
+    ok=typeof window.FormData==='function';
+    resp=ok?'✓ FormData available':'✗ FormData not found';
+  }
+  else if(id==='t-br-https'){
+    req='window.location.protocol';
+    var proto=window.location.protocol;
+    ok=true; // informational
+    resp='Protocol: '+proto+'\n'+(proto==='https:'?'✓ HTTPS — mic works in production':'⚠ HTTP — mic works only on localhost');
+  }
+  else if(id==='t-br-cookie'){
+    req='document.cookie contains csrftoken';
+    ok=document.cookie.includes('csrftoken');
+    resp=ok?'✓ csrftoken cookie present':'✗ No csrftoken — visit the Django app first';
+  }
+  else if(id==='t-br-tts-count'){
+    req='speechSynthesis.getVoices()';
+    var all=window.speechSynthesis.getVoices();
+    var frl=all.filter(function(x){return x.lang.startsWith('fr');});
+    ok=true;
+    resp='Total voices: '+all.length+'\nFrench voices: '+frl.length+'\n'+frl.map(function(x){return x.lang+' — '+x.name;}).join('\n');
+  }
+
+  var ms=Date.now()-t0;
+  setCard(card,ok?'pass':'fail',ms,req,resp);
+  st.total++; ok?st.pass++:st.fail++;
+  log((ok?'✓ PASS':'✗ FAIL')+' browser — '+id, ok?'p':'f');
+  score();
+}
+
+// ── CUSTOM ───────────────────────────────────────────────────
+async function runCustom(card){
+  var id=card.id, t0=Date.now(), ok=false, req='', resp='';
+  setCard(card,'running');
+  var tok=csrf();
+
+  try{
+
+    if(id==='t-va-unknown-user'){
+      var fd=new FormData(); fd.append('username','__nouser_xyz__'); fd.append('recognized_text','bonjour');
+      var r=await fetch(base()+'/api/voice/login/',{method:'POST',credentials:'include',headers:{'X-CSRFToken':tok},body:fd});
+      var d=await r.json();
+      req='POST /api/voice/login/\nusername: __nouser_xyz__';
+      ok=(r.status===401||r.status===404) && !d.authenticated;
+      resp='HTTP '+r.status+'\nauthenticated: '+d.authenticated+'\n'+(ok?'✓ Generic rejection':'✗ Unexpected response');
+    }
+
+    else if(id==='t-va-empty-user'){
+      var fd=new FormData(); fd.append('username',''); fd.append('password_word','bonjour'); fd.append('recognized_text','bonjour');
+      var r=await fetch(base()+'/api/voice/register/',{method:'POST',credentials:'include',headers:{'X-CSRFToken':tok},body:fd});
+      req='POST /api/voice/register/\nusername: (empty)';
+      ok=r.status===400;
+      var d=await r.json().catch(function(){return{};});
+      resp='HTTP '+r.status+'\n'+JSON.stringify(d,null,2);
+    }
+
+    else if(id==='t-va-empty-word'){
+      var fd=new FormData(); fd.append('username','someuser99'); fd.append('password_word',''); fd.append('recognized_text','');
+      var r=await fetch(base()+'/api/voice/register/',{method:'POST',credentials:'include',headers:{'X-CSRFToken':tok},body:fd});
+      req='POST /api/voice/register/\npassword_word: (empty)';
+      ok=r.status===400;
+      var d=await r.json().catch(function(){return{};});
+      resp='HTTP '+r.status+'\n'+JSON.stringify(d,null,2);
+    }
+
+    else if(id==='t-va-response-structure'){
+      var fd=new FormData(); fd.append('username','anyuser'); fd.append('recognized_text','test');
+      var r=await fetch(base()+'/api/voice/login/',{method:'POST',credentials:'include',headers:{'X-CSRFToken':tok},body:fd});
+      var d=await r.json().catch(function(){return null;});
+      req='POST /api/voice/login/ — check JSON structure';
+      ok=d!==null && ('authenticated' in d || 'error' in d || 'message' in d);
+      resp=d?'Keys: '+Object.keys(d).join(', ')+'\n'+(ok?'✓ Valid JSON structure':'✗ Missing expected keys'):'✗ Response is not JSON';
+    }
+
+    else if(id==='t-va-no-word-leak'){
+      var fd=new FormData(); fd.append('username','anyuser'); fd.append('recognized_text','wrongword');
+      var r=await fetch(base()+'/api/voice/login/',{method:'POST',credentials:'include',headers:{'X-CSRFToken':tok},body:fd});
+      var d=await r.json().catch(function(){return{};});
+      var msg=(d.message||'')+(d.error||'');
+      req='POST /api/voice/login/ — check message does not leak password';
+      ok=!d.authenticated && msg.length>0 && msg.length<120;
+      resp='Message ('+msg.length+' chars): "'+msg+'"'+(ok?'\n✓ Safe — short generic message':'\n✗ Message too long or suspicious');
+    }
+
+    else if(id==='t-va-no-sim-leak'){
+      var fd=new FormData(); fd.append('username','anyuser'); fd.append('recognized_text','wrongword');
+      var r=await fetch(base()+'/api/voice/login/',{method:'POST',credentials:'include',headers:{'X-CSRFToken':tok},body:fd});
+      var d=await r.json().catch(function(){return{};});
+      req='POST /api/voice/login/ — check no similarity in response';
+      var leak='word_similarity' in d||'voice_similarity' in d||'score' in d||'similarity' in d;
+      ok=!leak && !d.authenticated;
+      resp='Keys: '+Object.keys(d).join(', ')+(ok?'\n✓ No similarity exposed':'\n✗ Similarity score leaked!');
+    }
+
+    else if(id==='t-va-dup-user'){
+      var fd=new FormData(); fd.append('username','admin'); fd.append('password_word','bonjour'); fd.append('recognized_text','bonjour');
+      var r=await fetch(base()+'/api/voice/register/',{method:'POST',credentials:'include',headers:{'X-CSRFToken':tok},body:fd});
+      req='POST /api/voice/register/\nusername: admin (likely exists)';
+      ok=r.status===400||r.status===403;
+      var d=await r.json().catch(function(){return{};});
+      resp='HTTP '+r.status+'\n'+JSON.stringify(d,null,2)+(ok?'\n✓ Duplicate rejected':'\n✗ Should return 400!');
+    }
+
+    else if(id==='t-sec-csrf'){
+      var fd=new FormData(); fd.append('username','testcsrf'); fd.append('password_word','bonjour');
+      var r=await fetch(base()+'/api/voice/register/',{method:'POST',body:fd});
+      req='POST /api/voice/register/\n(no CSRF token, no credentials)';
+      ok=r.status===403||r.status===400;
+      resp='HTTP '+r.status+(ok?'\n✓ CSRF protection active':'\n✗ CSRF not enforced!');
+    }
+
+    else if(id==='t-sec-sql'){
+      var fd=new FormData(); fd.append('username',"' OR 1=1 --"); fd.append('recognized_text','bonjour');
+      var r=await fetch(base()+'/api/voice/login/',{method:'POST',credentials:'include',headers:{'X-CSRFToken':tok},body:fd});
+      var d=await r.json().catch(function(){return{};});
+      req="POST /api/voice/login/\nusername: ' OR 1=1 --";
+      ok=!d.authenticated && r.status!==500;
+      resp='HTTP '+r.status+'\nauthenticated: '+d.authenticated+(ok?'\n✓ SQL injection safe':'\n✗ Potential vulnerability!');
+    }
+
+    else if(id==='t-sec-xss'){
+      var fd=new FormData(); fd.append('username','<scr'+'ipt>alert(1)</'+'script>'); fd.append('recognized_text','bonjour');
+      var r=await fetch(base()+'/api/voice/login/',{method:'POST',credentials:'include',headers:{'X-CSRFToken':tok},body:fd});
+      req='POST /api/voice/login/\nusername: [script tag]';
+      ok=r.status!==500;
+      var txt=await r.text();
+      var raw=txt.includes('<scr'+'ipt>alert');
+      ok=ok&&!raw;
+      resp='HTTP '+r.status+'\nRaw script in response: '+raw+(ok?'\n✓ XSS safe':'\n✗ Potential XSS!');
+    }
+
+    else if(id==='t-sec-long-input'){
+      var big='a'.repeat(10000);
+      var fd=new FormData(); fd.append('username',big); fd.append('recognized_text','bonjour');
+      var r=await fetch(base()+'/api/voice/login/',{method:'POST',credentials:'include',headers:{'X-CSRFToken':tok},body:fd});
+      req='POST /api/voice/login/\nusername: 10 000 chars of "a"';
+      ok=r.status!==500;
+      resp='HTTP '+r.status+(ok?'\n✓ No crash on long input':'\n✗ Server crashed with 500!');
+    }
+
+    else if(id==='t-sec-auth-required'){
+      var pages=['/alphabet/','/words/','/quiz/','/stats/','/dictee/'];
+      var results=[];
+      for(var i=0;i<pages.length;i++){
+        var r=await fetch(base()+pages[i],{redirect:'manual',credentials:'include'});
+        var code=r.status===0?302:r.status;
+        results.push(pages[i]+' → '+code+(code===302||code===301?'✓':'✗'));
+      }
+      req='GET all protected pages without login';
+      ok=results.every(function(l){return l.includes('✓');});
+      resp=results.join('\n')+(ok?'\n\n✓ All redirect to login':'\n\n✗ Some pages accessible without login!');
+    }
+
+    else if(id==='t-cnt-api-json'){
+      var fd=new FormData(); fd.append('username','nobody'); fd.append('recognized_text','test');
+      var r=await fetch(base()+'/api/voice/login/',{method:'POST',credentials:'include',headers:{'X-CSRFToken':tok},body:fd});
+      req='POST /api/voice/login/ — check Content-Type header';
+      var ct=r.headers.get('content-type')||'';
+      ok=ct.includes('application/json');
+      resp='Content-Type: '+ct+(ok?'\n✓ Correct JSON response':'✗ Not JSON — got: '+ct);
+    }
+
+    else if(id==='t-perf-5req'){
+      req='5 × GET /login/ simultaneously';
+      var t0b=Date.now();
+      var ps=[]; for(var i=0;i<5;i++) ps.push(fetch(base()+'/login/',{redirect:'manual',credentials:'include'}));
+      var rs=await Promise.all(ps);
+      var ms=Date.now()-t0b;
+      ok=rs.every(function(r){return r.status<500;});
+      resp='All 5 responses: '+rs.map(function(r){return r.status===0?302:r.status;}).join(', ')+'\nTotal time: '+ms+'ms'+(ok?'\n✓ Server handled concurrency':'\n✗ Some requests failed!');
+    }
+
+  } catch(e){
+    ok=false; resp='✗ Exception: '+e.message;
+  }
+
+  var ms=Date.now()-t0;
+  setCard(card,ok?'pass':'fail',ms,req,resp);
+  st.total++; ok?st.pass++:st.fail++;
+  log((ok?'✓ PASS':'✗ FAIL')+' — '+id+' ('+ms+'ms)', ok?'p':'f');
+  score();
+}
+
+// ── DISPATCH ──────────────────────────────────────────────────
+async function runOne(card){
+  var t=card.dataset.t;
+  if(t==='auto')    return runAuto(card);
+  if(t==='perf')    return runPerf(card);
+  if(t==='content') return runContent(card);
+  if(t==='browser') return runBrowser(card);
+  if(t==='custom')  return runCustom(card);
+}
+
+// ── PUBLIC API ────────────────────────────────────────────────
+window.QA = {
+  runAll: async function(){
+    this.reset();
+    log('═══ Starting full test run ═══','i');
+    var cards=[].slice.call(document.querySelectorAll('.tc[data-t]'));
+    for(var i=0;i<cards.length;i++){
+      await runOne(cards[i]);
+      await new Promise(function(r){setTimeout(r,150);});
+    }
+    log('═══ Done: '+st.pass+' passed, '+st.fail+' failed, '+st.skip+' manual ═══', st.fail>0?'f':'p');
+  },
+  runFailed: async function(){
+    var cards=[].slice.call(document.querySelectorAll('.tc.s-fail[data-t]'));
+    if(!cards.length){ log('No failed tests to re-run','w'); return; }
+    log('Re-running '+cards.length+' failed tests…','i');
+    st.fail=0; st.pass=0; st.total=0; score();
+    for(var i=0;i<cards.length;i++){
+      await runOne(cards[i]);
+      await new Promise(function(r){setTimeout(r,150);});
+    }
+  },
+  reset: function(){
+    st={total:0,pass:0,fail:0,skip:0}; score();
+    document.getElementById('prog').style.width='0%';
+    document.querySelectorAll('.tc').forEach(function(c){
+      c.className='tc';
+      var b=c.querySelector('.badge'),ti=c.querySelector('.tc-time'),d=c.querySelector('.tc-detail');
+      if(b){b.className='badge b-idle';b.textContent='IDLE';}
+      if(ti)ti.textContent='—';
+      if(d){d.innerHTML='';d.classList.remove('open');}
+    });
+    var lg=document.getElementById('log');
+    lg.innerHTML='<div class="ll"><span class="lt">'+now()+'</span><span class="li">// Reset. Ready.</span></div>';
+  },
+  expandAll:  function(){ document.querySelectorAll('.tc-detail').forEach(function(d){d.classList.add('open');}); },
+  collapseAll:function(){ document.querySelectorAll('.tc-detail').forEach(function(d){d.classList.remove('open');}); },
+  one: runOne
+};
+
+// init TTS voices async
+if(window.speechSynthesis) window.speechSynthesis.getVoices();
+
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,1 @@
+web: gunicorn parle_francais.wsgi

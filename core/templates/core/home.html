@@ -1,0 +1,139 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Accueil — Parle Français{% endblock %}
+
+{% block page_title %}Bonjour, {{ user.username }} 👋{% endblock %}
+
+{% block topbar_right %}
+<div class="model-status">
+  <div class="status-dot"></div>
+  IA Phonème active
+</div>
+<div class="streak-badge">🔥 {{ user.streak_days }} jour{% if user.streak_days > 1 %}s{% endif %}</div>
+<div class="xp-bar-wrap">
+  <span>Niv. {{ user.level }}</span>
+  <div class="xp-bar">
+    <div class="xp-fill" style="width: {% widthratio user.xp 1000 100 %}%"></div>
+  </div>
+  <span style="color:var(--accent)">{{ user.xp }} XP</span>
+</div>
+{% endblock %}
+
+{% block content %}
+
+<!-- HERO -->
+<div class="hero">
+  <h1>Master French<br>Pronunciation</h1>
+  <p>
+    AI-powered speech recognition teaches you authentic French sounds —
+    from individual letters to complex phoneme groups like
+    <em>en, on, oin, gn</em> and more.
+  </p>
+  <a href="{% url 'alphabet' %}" class="btn-primary" style="margin-top:22px">
+    ▶ Continuer à apprendre
+  </a>
+</div>
+
+<!-- MODULE GRID -->
+<div style="font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;margin-bottom:16px">
+  Modules d'apprentissage
+</div>
+
+<div class="modules-grid">
+
+  <a href="{% url 'alphabet' %}" class="module-card" style="display:block">
+    <div class="module-icon">🔤</div>
+    <div class="module-name">Alphabet</div>
+    <div class="module-desc">26 lettres avec prononciation française authentique</div>
+    <div class="module-progress">
+      <div class="module-progress-fill" style="width:{% for mp in module_progress %}{% if mp.category.category_type == 'alphabet' %}{{ mp.percent }}{% endif %}{% endfor %}%"></div>
+    </div>
+    <div style="font-size:0.7rem;color:var(--muted);margin-top:6px">
+      {% for mp in module_progress %}{% if mp.category.category_type == 'alphabet' %}{{ mp.mastered }}/{{ mp.total }} complétés{% endif %}{% endfor %}
+    </div>
+  </a>
+
+  <a href="{% url 'phonemes' %}" class="module-card" style="display:block">
+    <div class="module-icon">🔊</div>
+    <div class="module-name">Phonèmes</div>
+    <div class="module-desc">en, on, un, oi, oin, gn, ch et plus encore</div>
+    <div class="module-progress">
+      <div class="module-progress-fill" style="width:{% for mp in module_progress %}{% if mp.category.category_type == 'phoneme' %}{{ mp.percent }}{% endif %}{% endfor %}%"></div>
+    </div>
+    <div style="font-size:0.7rem;color:var(--muted);margin-top:6px">
+      {% for mp in module_progress %}{% if mp.category.category_type == 'phoneme' %}{{ mp.mastered }}/{{ mp.total }} complétés{% endif %}{% endfor %}
+    </div>
+  </a>
+
+  <a href="{% url 'words' %}" class="module-card" style="display:block">
+    <div class="module-icon">📝</div>
+    <div class="module-name">Mots</div>
+    <div class="module-desc">Vocabulaire français courant avec score de prononciation</div>
+    <div class="module-progress">
+      <div class="module-progress-fill" style="width:{% for mp in module_progress %}{% if mp.category.category_type == 'word' %}{{ mp.percent }}{% endif %}{% endfor %}%"></div>
+    </div>
+    <div style="font-size:0.7rem;color:var(--muted);margin-top:6px">
+      {% for mp in module_progress %}{% if mp.category.category_type == 'word' %}{{ mp.mastered }}/{{ mp.total }} complétés{% endif %}{% endfor %}
+    </div>
+  </a>
+
+  <a href="{% url 'sentences' %}" class="module-card" style="display:block">
+    <div class="module-icon">💬</div>
+    <div class="module-name">Phrases</div>
+    <div class="module-desc">Répétition de phrases complètes et entraînement à la fluidité</div>
+    <div class="module-progress">
+      <div class="module-progress-fill" style="width:{% for mp in module_progress %}{% if mp.category.category_type == 'sentence' %}{{ mp.percent }}{% endif %}{% endfor %}%"></div>
+    </div>
+    <div style="font-size:0.7rem;color:var(--muted);margin-top:6px">
+      {% for mp in module_progress %}{% if mp.category.category_type == 'sentence' %}{{ mp.mastered }}/{{ mp.total }} complétés{% endif %}{% endfor %}
+    </div>
+  </a>
+
+  <a href="{% url 'quiz' %}" class="module-card" style="display:block">
+    <div class="module-icon">🧠</div>
+    <div class="module-name">Quiz</div>
+    <div class="module-desc">Entendre en anglais/hébreu → dire en français</div>
+    <div class="module-progress">
+      <div class="module-progress-fill" style="width:0%"></div>
+    </div>
+    <div style="font-size:0.7rem;color:var(--muted);margin-top:6px">Pas encore commencé</div>
+  </a>
+
+  <a href="{% url 'dictee' %}" class="module-card" style="display:block">
+    <div class="module-icon">👂</div>
+    <div class="module-name">Dictée</div>
+    <div class="module-desc">Écouter et taper ce que vous entendez en français</div>
+    <div class="module-progress">
+      <div class="module-progress-fill" style="width:0%"></div>
+    </div>
+    <div style="font-size:0.7rem;color:var(--muted);margin-top:6px">Pas encore commencé</div>
+  </a>
+
+</div>
+
+<!-- FRENCH PHONEMES — hardcoded, no split filter needed -->
+<div class="card">
+  <div class="card-title">Sons spécifiques au français 🇫🇷</div>
+  <div class="card-sub">Ces sons n'existent pas en anglais ni en hébreu — ce sont les plus importants à maîtriser</div>
+  <div style="display:flex;flex-wrap:wrap;gap:10px">
+    {% for group in phoneme_groups_preview %}
+      <a href="{% url 'phonemes' %}" style="background:rgba(124,92,191,0.1);border:1px solid rgba(124,92,191,0.3);color:var(--accent2);padding:8px 16px;border-radius:20px;font-family:'DM Mono',monospace;font-size:0.85rem;font-weight:600;text-decoration:none;">
+        {{ group.name }} <span style="color:var(--muted);font-size:0.75rem">{{ group.ipa }}</span>
+      </a>
+    {% empty %}
+      <span style="background:rgba(124,92,191,0.1);border:1px solid rgba(124,92,191,0.3);color:var(--accent2);padding:8px 16px;border-radius:20px;font-family:'DM Mono',monospace;font-size:0.85rem;font-weight:600;">en/an</span>
+      <span style="background:rgba(124,92,191,0.1);border:1px solid rgba(124,92,191,0.3);color:var(--accent2);padding:8px 16px;border-radius:20px;font-family:'DM Mono',monospace;font-size:0.85rem;font-weight:600;">on</span>
+      <span style="background:rgba(124,92,191,0.1);border:1px solid rgba(124,92,191,0.3);color:var(--accent2);padding:8px 16px;border-radius:20px;font-family:'DM Mono',monospace;font-size:0.85rem;font-weight:600;">un/in</span>
+      <span style="background:rgba(124,92,191,0.1);border:1px solid rgba(124,92,191,0.3);color:var(--accent2);padding:8px 16px;border-radius:20px;font-family:'DM Mono',monospace;font-size:0.85rem;font-weight:600;">oin</span>
+      <span style="background:rgba(124,92,191,0.1);border:1px solid rgba(124,92,191,0.3);color:var(--accent2);padding:8px 16px;border-radius:20px;font-family:'DM Mono',monospace;font-size:0.85rem;font-weight:600;">ou</span>
+      <span style="background:rgba(124,92,191,0.1);border:1px solid rgba(124,92,191,0.3);color:var(--accent2);padding:8px 16px;border-radius:20px;font-family:'DM Mono',monospace;font-size:0.85rem;font-weight:600;">eu/œu</span>
+      <span style="background:rgba(124,92,191,0.1);border:1px solid rgba(124,92,191,0.3);color:var(--accent2);padding:8px 16px;border-radius:20px;font-family:'DM Mono',monospace;font-size:0.85rem;font-weight:600;">oi</span>
+      <span style="background:rgba(124,92,191,0.1);border:1px solid rgba(124,92,191,0.3);color:var(--accent2);padding:8px 16px;border-radius:20px;font-family:'DM Mono',monospace;font-size:0.85rem;font-weight:600;">gn</span>
+      <span style="background:rgba(124,92,191,0.1);border:1px solid rgba(124,92,191,0.3);color:var(--accent2);padding:8px 16px;border-radius:20px;font-family:'DM Mono',monospace;font-size:0.85rem;font-weight:600;">ch</span>
+      <span style="background:rgba(124,92,191,0.1);border:1px solid rgba(124,92,191,0.3);color:var(--accent2);padding:8px 16px;border-radius:20px;font-family:'DM Mono',monospace;font-size:0.85rem;font-weight:600;">r (uvulaire)</span>
+    {% endfor %}
+  </div>
+</div>
+
+{% endblock %}

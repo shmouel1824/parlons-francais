@@ -1,0 +1,105 @@
+{% extends 'core/base.html' %}
+{% block title %}Quiz — Parle Français{% endblock %}
+{% block page_title %}Quiz de Prononciation{% endblock %}
+{% block content %}
+
+<div class="quiz-card">
+  <div class="quiz-lang-badge" id="quiz-lang">Anglais</div>
+  <div class="quiz-word" id="quiz-word">Chargement…</div>
+  <div style="font-size:0.85rem;color:var(--muted);margin-top:12px">
+    Dites la traduction en français
+  </div>
+</div>
+
+<div class="mic-area">
+  <div class="waveform" id="waveform-quiz" data-waveform></div>
+  <button class="mic-btn" id="mic-btn-quiz" onclick="toggleQuiz()">🎤</button>
+  <div class="mic-hint">Dites le mot en français</div>
+</div>
+
+<div class="score-display" id="score-quiz">
+  <div style="font-size:0.85rem;color:var(--muted);margin-bottom:10px">La bonne réponse était :</div>
+  <div style="font-family:'Playfair Display',serif;font-size:2rem;font-weight:700" id="quiz-answer">—</div>
+  <div class="target-ipa" id="quiz-ipa"></div>
+  <div class="score-number" id="score-num-q" style="margin-top:16px">—</div>
+  <div class="score-label"  id="score-label-q">—</div>
+</div>
+
+<div class="btn-row">
+  <button class="btn-primary" onclick="nextQuiz()">Question suivante →</button>
+</div>
+
+{% endblock %}
+{% block extra_js %}
+<script>
+const quizItems = [
+  {% for ex in exercises %}
+  {
+    id: {{ ex.id }},
+    en: "{{ ex.english_text }}",
+    he: "{{ ex.hebrew_text }}",
+    fr: "{{ ex.french_text }}",
+    ipa: "{{ ex.ipa }}"
+  },
+  {% endfor %}
+];
+
+// Fallback static data if no DB exercises yet
+const fallbackQuiz = [
+  { id:null, en:'Cat',   he:'חתול', fr:'Chat',    ipa:'/ʃa/' },
+  { id:null, en:'Dog',   he:'כלב',  fr:'Chien',   ipa:'/ʃjɛ̃/' },
+  { id:null, en:'Water', he:'מים',  fr:'Eau',     ipa:'/o/' },
+  { id:null, en:'Bread', he:'לחם',  fr:'Pain',    ipa:'/pɛ̃/' },
+  { id:null, en:'Hello', he:'שלום', fr:'Bonjour', ipa:'/bɔ̃ʒuʁ/' },
+];
+
+const items = quizItems.length ? quizItems : fallbackQuiz;
+const lang  = '{{ native_language }}' || 'en';
+let qIdx    = 0;
+let qMic    = null;
+
+function showQuiz() {
+  const q = items[qIdx];
+  document.getElementById('quiz-lang').textContent = lang === 'he' ? 'Hébreu' : 'Anglais';
+  document.getElementById('quiz-word').textContent = lang === 'he' ? q.he : q.en;
+  document.getElementById('score-quiz').style.display = 'none';
+}
+
+function nextQuiz() {
+  qIdx = (qIdx + 1) % items.length;
+  showQuiz();
+}
+
+function toggleQuiz() {
+  const q   = items[qIdx];
+  const btn = document.getElementById('mic-btn-quiz');
+  if (qMic && qMic.isRecording) { qMic.stop(btn); return; }
+
+  if (!q.id) {
+    // No DB exercise — just speak and show answer
+    showToast('Ajoutez des exercices via l\'admin pour le scoring IA', 'info');
+    document.getElementById('quiz-answer').textContent = q.fr;
+    document.getElementById('quiz-ipa').textContent    = q.ipa;
+    document.getElementById('score-quiz').style.display = 'block';
+    TTS.speak(q.fr);
+    return;
+  }
+
+  qMic = new MicRecorder({
+    exerciseId: q.id,
+    waveformId: 'waveform-quiz',
+    onScore: (r) => {
+      document.getElementById('quiz-answer').textContent = q.fr;
+      document.getElementById('quiz-ipa').textContent    = q.ipa;
+      showScore(r, 'score-quiz');
+      TTS.speak(q.fr);
+    },
+    onError: (e) => showToast(e, 'error'),
+  });
+  qMic.toggle(btn);
+}
+
+// Init
+showQuiz();
+</script>
+{% endblock %}

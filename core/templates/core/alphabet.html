@@ -1,0 +1,166 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Alphabet — Parle Français{% endblock %}
+{% block page_title %}Alphabet Français{% endblock %}
+
+{% block content %}
+
+<div class="card">
+  <div class="card-title">Choisissez une lettre à pratiquer</div>
+  <div class="card-sub">Cliquez sur une lettre pour l'entendre et pratiquer votre prononciation</div>
+
+  <div class="alphabet-grid" id="alphabet-grid">
+    {% for item in exercises %}
+    <div class="letter-tile {% if item.mastered %}done{% endif %}"
+         onclick="openLetter({{ item.exercise.id }}, '{{ item.exercise.french_text }}', '{{ item.exercise.ipa }}', '{{ item.exercise.example }}')">
+      <div class="letter-char">{{ item.exercise.french_text }}</div>
+      <div class="letter-ipa">{{ item.exercise.ipa }}</div>
+      {% if item.mastered %}<span class="letter-check">✓</span>{% endif %}
+    </div>
+    {% empty %}
+    {# Fallback: show static alphabet if no DB data yet #}
+    {% for letter in "ABCDEFGHIJKLMNOPQRSTUVWXYZ" %}
+    <div class="letter-tile" onclick="openLetterStatic('{{ letter }}')">
+      <div class="letter-char">{{ letter }}</div>
+      <div class="letter-ipa" style="color:var(--muted);font-size:0.6rem">—</div>
+    </div>
+    {% endfor %}
+    {% endfor %}
+  </div>
+</div>
+
+<!-- ── Exercise Area ─────────────────────────────────────────── -->
+<div id="letter-exercise" style="display:none">
+
+  <div class="exercise-header">
+    <button class="back-btn" onclick="closeExercise()">← Retour</button>
+    <div class="progress-track">
+      <div class="progress-fill" id="ex-progress" style="width:0%"></div>
+    </div>
+    <div class="step-counter" id="ex-counter">0 / 3 tentatives</div>
+  </div>
+
+  <div class="target-display">
+    <div class="target-word" id="ex-letter">A</div>
+    <div class="target-ipa"  id="ex-ipa">/a/</div>
+    <div class="target-translation" id="ex-example">comme dans "ami"</div>
+    <button class="listen-btn" onclick="speakTarget()" style="margin-top:18px">
+      🔊 Écouter
+    </button>
+    <button class="listen-btn" onclick="speakTarget(0.6)" style="margin-top:18px">
+      🐢 Lentement
+    </button>
+  </div>
+
+  <div class="mic-area">
+    <div class="waveform" id="waveform" data-waveform></div>
+    <button class="mic-btn" id="mic-btn" onclick="toggleRecording()">🎤</button>
+    <div class="mic-hint" id="mic-hint">Appuyez pour enregistrer votre prononciation</div>
+  </div>
+
+  <div class="score-display" id="score-display">
+    <div class="score-number" id="score-num">—</div>
+    <div class="score-label"  id="score-label">—</div>
+    <div class="score-feedback" id="score-feedback"></div>
+    <div class="phoneme-breakdown" id="phoneme-breakdown"></div>
+  </div>
+
+  <div class="btn-row">
+    <button class="listen-btn" onclick="speakTarget()">🔊 Réécouter</button>
+    <button class="btn-primary" id="next-btn" onclick="nextLetter()" style="display:none">
+      Suivant →
+    </button>
+  </div>
+
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let currentExerciseId = null;
+let currentLetter     = '';
+let attemptCount      = 0;
+let micRecorder       = null;
+
+function openLetter(exerciseId, letter, ipa, example) {
+  currentExerciseId = exerciseId;
+  currentLetter     = letter;
+  attemptCount      = 0;
+
+  document.getElementById('ex-letter').textContent  = letter;
+  document.getElementById('ex-ipa').textContent      = ipa || '';
+  document.getElementById('ex-example').textContent = example ? `comme dans "${example}"` : '';
+  document.getElementById('letter-exercise').style.display = 'block';
+  document.getElementById('score-display').style.display   = 'none';
+  document.getElementById('score-display').className       = 'score-display';
+  document.getElementById('next-btn').style.display        = 'none';
+  document.getElementById('mic-hint').textContent = 'Appuyez pour enregistrer votre prononciation';
+  updateCounter();
+
+  buildWaveform('waveform');
+  document.getElementById('letter-exercise').scrollIntoView({ behavior: 'smooth' });
+  speakTarget();
+}
+
+// Fallback when no DB data
+function openLetterStatic(letter) {
+  openLetter(null, letter, '', '');
+}
+
+function closeExercise() {
+  document.getElementById('letter-exercise').style.display = 'none';
+}
+
+function updateCounter() {
+  document.getElementById('ex-counter').textContent  = `${attemptCount} / 3 tentatives`;
+  document.getElementById('ex-progress').style.width = `${(attemptCount / 3) * 100}%`;
+}
+
+function speakTarget(rate = 1.0) {
+  TTS.speak(currentLetter, rate);
+}
+
+function toggleRecording() {
+  if (!currentExerciseId) {
+    showToast('Exercice non disponible — ajoutez des données via l\'admin', 'info');
+    return;
+  }
+
+  const btn = document.getElementById('mic-btn');
+  if (micRecorder && micRecorder.isRecording) {
+    micRecorder.stop(btn);
+    return;
+  }
+
+  micRecorder = new MicRecorder({
+    exerciseId: currentExerciseId,
+    waveformId: 'waveform',
+    onScore: (result) => {
+      attemptCount++;
+      updateCounter();
+      showScore(result, 'score-display');
+      document.getElementById('mic-hint').textContent = 'Appuyez pour réessayer';
+      if (result.pass || attemptCount >= 3) {
+        document.getElementById('next-btn').style.display = 'inline-flex';
+      }
+    },
+    onError: (msg) => showToast(msg, 'error'),
+  });
+  micRecorder.toggle(btn);
+}
+
+function nextLetter() {
+  // find next tile and click it
+  const tiles = document.querySelectorAll('.letter-tile');
+  let found = false;
+  for (let tile of tiles) {
+    if (found) { tile.click(); return; }
+    if (tile.querySelector('.letter-char').textContent === currentLetter) found = true;
+  }
+  closeExercise();
+  showToast('🎉 Alphabet terminé !', 'success');
+}
+</script>
+{% endblock %}

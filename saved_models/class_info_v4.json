@@ -1,0 +1,23 @@
+{
+  "version": "v4",
+  "class_names": [
+    "eu_sound",
+    "fricative",
+    "liquid_l",
+    "nasal",
+    "oi_ui",
+    "standard"
+  ],
+  "num_classes": 6,
+  "sample_rate": 16000,
+  "n_mels": 128,
+  "target_size": 128,
+  "hop_length": 256,
+  "n_fft": 1024,
+  "duration": 2.0,
+  "best_val_accuracy": 0.9773299694061279,
+  "training_samples": 9526,
+  "total_words": 2977,
+  "augment_times": 4,
+  "strategy": "gTTS ONLY \u2014 2977 words \u00d7 4 augmentations"
+}

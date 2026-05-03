@@ -1,0 +1,26 @@
+# ── requirements.txt — Parle Français (TensorFlow version, Python 3.11) ──────
+
+# ── Django ──────────────────────────────────────────────────
+Django==4.2.9
+djangorestframework==3.14.0
+
+# ── Deep Learning — TensorFlow ───────────────────────────────
+tensorflow==2.16.1          # CNN models (PhonemeNet, SpeakerNet) — Python 3.11 compatible
+
+# ── Audio Processing ─────────────────────────────────────────
+librosa==0.10.1             # mel spectrograms, audio loading
+soundfile==0.12.1           # reading/writing audio files
+numpy==1.26.4               # numerical computing
+scipy==1.12.0               # signal processing
+
+# ── Image Processing ─────────────────────────────────────────
+Pillow==10.2.0              # spectrogram image resize
+
+# ── Visualization ────────────────────────────────────────────
+matplotlib==3.8.2           # plot spectrograms (for teaching)
+
+gunicorn
+whitenoise
+dj-database-url
+psycopg2-binary
+gTTS

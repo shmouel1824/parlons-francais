@@ -1,0 +1,139 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}Parle Français{% endblock %}</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'core/css/style.css' %}">
+{% block extra_css %}{% endblock %}
+</head>
+<body>
+
+<div id="app">
+
+  <!-- ── SIDEBAR ─────────────────────────────────────────── -->
+  <nav class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-text">Parle<br>Français</div>
+      <div class="logo-flag">
+        <span style="background:#002395"></span>
+        <span style="background:#fff;border:1px solid rgba(0,0,0,0.1)"></span>
+        <span style="background:#ED2939"></span>
+      </div>
+    </div>
+
+    <div class="nav-section">Apprendre</div>
+    <a href="{% url 'home' %}" class="nav-item {% if request.resolver_match.url_name == 'home' %}active{% endif %}">
+      <span class="nav-icon">🏠</span> Accueil
+    </a>
+    <a href="{% url 'alphabet' %}" class="nav-item {% if request.resolver_match.url_name == 'alphabet' %}active{% endif %}">
+      <span class="nav-icon">🔤</span> Alphabet
+    </a>
+    <a href="{% url 'phonemes' %}" class="nav-item {% if request.resolver_match.url_name == 'phonemes' %}active{% endif %}">
+      <span class="nav-icon">🔊</span> Phonèmes
+    </a>
+    <a href="{% url 'words' %}" class="nav-item {% if request.resolver_match.url_name == 'words' %}active{% endif %}">
+      <span class="nav-icon">📝</span> Mots
+    </a>
+    <a href="{% url 'sentences' %}" class="nav-item {% if request.resolver_match.url_name == 'sentences' %}active{% endif %}">
+      <span class="nav-icon">💬</span> Phrases
+    </a>
+
+    <div class="nav-section">Tester</div>
+    <a href="{% url 'quiz' %}" class="nav-item {% if request.resolver_match.url_name == 'quiz' %}active{% endif %}">
+      <span class="nav-icon">🧠</span> Quiz
+    </a>
+    <a href="{% url 'dictee' %}" class="nav-item {% if request.resolver_match.url_name == 'dictee' %}active{% endif %}">
+      <span class="nav-icon">👂</span> Dictée
+    </a>
+
+    <div class="nav-section">Profil</div>
+    <a href="{% url 'stats' %}" class="nav-item {% if request.resolver_match.url_name == 'stats' %}active{% endif %}">
+      <span class="nav-icon">📊</span> Mes Progrès
+    </a>
+    {% if user.is_staff %}
+    <a href="/admin/" class="nav-item">
+      <span class="nav-icon">⚙️</span> Admin
+    </a>
+    {% endif %}
+    <div class="sidebar-bottom">
+      {% if user.is_authenticated %}
+      <div class="user-card">
+        <div class="avatar">{{ user.username|first|upper }}</div>
+        <div>
+          <div class="user-name">{{ user.username }}</div>
+          <div class="user-level">⭐ Niveau {{ user.level }} — {{ user.xp }} XP</div>
+        </div>
+      </div>
+      <a href="{% url 'logout' %}" class="nav-item" style="margin-top:8px;font-size:0.8rem">
+        <span class="nav-icon">🚪</span> Déconnexion
+      </a>
+      {% endif %}
+    </div>
+  </nav>
+
+  <!-- ── MAIN CONTENT ────────────────────────────────────── -->
+  <main class="main">
+    {% block topbar %}
+    <div class="topbar">
+      <div class="topbar-title">{% block page_title %}{% endblock %}</div>
+      <div style="display:flex;gap:16px;align-items:center">
+        {% block topbar_right %}
+        <div class="model-status">
+          <div class="status-dot"></div>
+          IA Phonème active
+        </div>
+        {% if user.is_authenticated %}
+        <div class="streak-badge">🔥 {{ user.streak_days }} jours</div>
+        {% endif %}
+        {% endblock %}
+      </div>
+    </div>
+    {% endblock %}
+
+    <div class="content">
+      {% if messages %}
+        {% for message in messages %}
+          <div class="alert alert-{{ message.tags }}" style="
+            background:{% if message.tags == 'success' %}rgba(78,203,113,0.1){% else %}rgba(240,80,96,0.1){% endif %};
+            border:1px solid {% if message.tags == 'success' %}rgba(78,203,113,0.3){% else %}rgba(240,80,96,0.3){% endif %};
+            color:{% if message.tags == 'success' %}var(--green){% else %}var(--red){% endif %};
+            padding:12px 20px; border-radius:10px; margin-bottom:16px; font-size:0.875rem;
+          ">
+            {{ message }}
+          </div>
+        {% endfor %}
+      {% endif %}
+
+      {% block content %}{% endblock %}
+    </div>
+  </main>
+</div>
+
+<!-- ── TOAST NOTIFICATION ──────────────────────────────────── -->
+<div class="toast" id="toast"></div>
+
+<!-- ── SHARED JS ───────────────────────────────────────────── -->
+<script src="{% static 'core/js/app.js' %}"></script>
+<script>
+  // CSRF token for AJAX
+  const CSRF_TOKEN = '{{ csrf_token }}';
+
+  // Django-provided data for JS
+  const DJANGO_CONTEXT = {
+    userId: {% if user.is_authenticated %}{{ user.id }}{% else %}null{% endif %},
+    userName: '{% if user.is_authenticated %}{{ user.username }}{% endif %}',
+    userXP: {% if user.is_authenticated %}{{ user.xp }}{% else %}0{% endif %},
+    apiScoreUrl: '{% url "api_score" %}',
+    apiVoiceLoginUrl: '{% url "api_voice_login" %}',
+    apiVoiceRegisterUrl: '{% url "api_voice_register" %}',
+    apiFeedbackUrl: '{% url "api_feedback" %}',
+    apiDicteeUrl: '{% url "api_dictee" %}',
+  };
+</script>
+{% block extra_js %}{% endblock %}
+
+</body>
+</html>

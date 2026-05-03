@@ -1,0 +1,80 @@
+{% extends 'core/base.html' %}
+{% block title %}Phonèmes — Parle Français{% endblock %}
+{% block page_title %}Groupes de Phonèmes{% endblock %}
+{% block content %}
+<div class="card">
+  <div class="card-title">Sons spécifiques au français</div>
+  <div class="card-sub">Ces sons rendent le français unique — et les plus difficiles pour les non-natifs</div>
+  <div class="phoneme-groups">
+    {% for item in phoneme_groups %}
+    <div class="phoneme-group-card"
+         onclick="startPhoneme('{{ item.group.name }}','{{ item.group.ipa }}','{{ item.group.examples }}')">
+      <div class="pg-text">{{ item.group.name }}</div>
+      <div class="pg-example">{{ item.group.examples }}</div>
+      <div class="pg-ipa">{{ item.group.ipa }}</div>
+      {% if item.mastered %}
+      <div style="color:var(--green);font-size:0.7rem;margin-top:6px">✓ Maîtrisé</div>
+      {% elif item.average_score > 0 %}
+      <div style="color:var(--muted);font-size:0.7rem;margin-top:6px">Score: {{ item.average_score|floatformat:0 }}%</div>
+      {% endif %}
+    </div>
+    {% empty %}
+    {% for g in phoneme_list %}
+    <div class="phoneme-group-card"
+         onclick="startPhoneme('{{ g.name }}','{{ g.ipa }}','{{ g.examples }}')">
+      <div class="pg-text">{{ g.name }}</div>
+      <div class="pg-example">{{ g.examples }}</div>
+      <div class="pg-ipa">{{ g.ipa }}</div>
+    </div>
+    {% endfor %}
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function() {
+
+  // Speak one word and return a Promise that resolves when done
+  function speakWord(word) {
+    return new Promise(function(resolve) {
+      if (!window.speechSynthesis) { resolve(); return; }
+      var u   = new SpeechSynthesisUtterance(word.trim());
+      u.lang  = 'fr-FR';
+      u.rate  = 0.80;   // slightly slow — clear for learning
+      u.pitch = 1.0;
+      var voices = window.speechSynthesis.getVoices();
+      var fr = voices.find(function(v){ return v.lang.startsWith('fr'); });
+      if (fr) u.voice = fr;
+      u.onend  = resolve;
+      u.onerror = resolve;
+      window.speechSynthesis.speak(u);
+    });
+  }
+
+  // Wait ms milliseconds
+  function pause(ms) {
+    return new Promise(function(resolve){ setTimeout(resolve, ms); });
+  }
+
+  // Speak each example word one by one, with a clear pause between them
+  window.startPhoneme = async function(name, ipa, examples) {
+    if (!examples) return;
+
+    showToast(name + ' ' + ipa, 'info');
+
+    window.speechSynthesis.cancel();
+
+    // Split "moi, trois, boire, voir" → ["moi","trois","boire","voir"]
+    var words = examples.split(',').map(function(w){ return w.trim(); }).filter(Boolean);
+
+    for (var i = 0; i < words.length; i++) {
+      await speakWord(words[i]);
+      await pause(420);   // 420ms silence between words — clear separation
+    }
+  };
+
+})();
+</script>
+{% endblock %}

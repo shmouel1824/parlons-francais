@@ -1,0 +1,98 @@
+{% extends 'core/base.html' %}
+{% block title %}Mots — Parle Français{% endblock %}
+{% block page_title %}Vocabulaire{% endblock %}
+{% block content %}
+
+<div class="exercise-header" style="flex-wrap:wrap;gap:10px">
+  <span style="font-size:0.85rem;color:var(--muted)">Catégorie :</span>
+  {% for cat in categories %}
+  <button class="listen-btn" style="font-size:0.75rem;padding:6px 14px"
+          onclick="loadCategory({{ cat.id }}, '{{ cat.name }}')">
+    {{ cat.icon }} {{ cat.name }}
+  </button>
+  {% empty %}
+  <button class="listen-btn" onclick="loadDefaultWords()">📚 Mots de base</button>
+  {% endfor %}
+</div>
+
+<div class="target-display" id="word-display">
+  <div style="font-size:0.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px" id="word-cat-label">—</div>
+  <div class="target-word" id="word-target">Sélectionnez une catégorie</div>
+  <div class="target-ipa"  id="word-ipa"></div>
+  <div class="target-translation" id="word-translation"></div>
+  <button class="listen-btn" onclick="speakWord()" style="margin-top:18px">🔊 Écouter</button>
+</div>
+
+<div class="mic-area">
+  <div class="waveform" id="waveform-words" data-waveform></div>
+  <button class="mic-btn" id="mic-btn-words" onclick="toggleRecordingWord()">🎤</button>
+  <div class="mic-hint" id="mic-hint-words">Sélectionnez une catégorie puis appuyez sur le micro</div>
+</div>
+
+<div class="score-display" id="score-display-words">
+  <div class="score-number" id="score-num-words">—</div>
+  <div class="score-label"  id="score-label-words">—</div>
+  <div class="score-feedback" id="score-feedback-words"></div>
+  <div class="phoneme-breakdown" id="phoneme-breakdown-words"></div>
+</div>
+
+<div class="btn-row">
+  <button class="listen-btn" onclick="speakWord()">🔊 Réécouter</button>
+  <button class="btn-primary" onclick="nextWord()">Mot suivant →</button>
+</div>
+
+{% endblock %}
+{% block extra_js %}
+<script>
+let wordList = [];
+let wordIdx  = 0;
+let wordMic  = null;
+
+function loadCategory(catId, catName) {
+  fetch(`/api/exercises/?category=${catId}`)
+    .then(r => r.json())
+    .then(data => {
+      wordList = data.exercises || [];
+      wordIdx  = 0;
+      document.getElementById('word-cat-label').textContent = catName;
+      showCurrentWord();
+    })
+    .catch(() => showToast('Ajoutez des exercices via l\'admin', 'info'));
+}
+
+function showCurrentWord() {
+  if (!wordList.length) return;
+  const w = wordList[wordIdx];
+  document.getElementById('word-target').textContent      = w.french_text;
+  document.getElementById('word-ipa').textContent         = w.ipa || '';
+  document.getElementById('word-translation').textContent = w.english_text || '';
+  document.getElementById('score-display-words').style.display = 'none';
+  document.getElementById('mic-hint-words').textContent   = 'Appuyez pour enregistrer';
+  TTS.speak(w.french_text);
+}
+
+function speakWord() {
+  const t = document.getElementById('word-target').textContent;
+  if (t && t !== 'Sélectionnez une catégorie') TTS.speak(t);
+}
+
+function nextWord() {
+  if (!wordList.length) return;
+  wordIdx = (wordIdx + 1) % wordList.length;
+  showCurrentWord();
+}
+
+function toggleRecordingWord() {
+  if (!wordList.length) { showToast('Chargez une catégorie d\'abord', 'info'); return; }
+  const btn = document.getElementById('mic-btn-words');
+  if (wordMic && wordMic.isRecording) { wordMic.stop(btn); return; }
+  wordMic = new MicRecorder({
+    exerciseId: wordList[wordIdx].id,
+    waveformId: 'waveform-words',
+    onScore: (r) => showScore(r, 'score-display-words'),
+    onError: (e) => showToast(e, 'error'),
+  });
+  wordMic.toggle(btn);
+}
+</script>
+{% endblock %}

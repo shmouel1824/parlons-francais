@@ -1,0 +1,82 @@
+{% extends 'core/base.html' %}
+{% block title %}Phrases — Parle Français{% endblock %}
+{% block page_title %}Phrases Complètes{% endblock %}
+{% block content %}
+
+<div class="target-display">
+  <div style="font-size:0.75rem;color:var(--muted);margin-bottom:10px" id="sentence-counter">
+    PHRASE 1 / {{ exercises|length|default:"—" }}
+  </div>
+  <div class="target-word" style="font-size:2rem;line-height:1.4" id="sentence-target">
+   {% if exercises %}{{ exercises.0.french_text }}{% else %}Ajoutez des phrases via l'admin{% endif %}
+  </div>
+  <div class="target-ipa" id="sentence-ipa">
+    {% if exercises %}{{ exercises.0.ipa }}{% endif %}
+  </div>
+  <div class="target-translation" id="sentence-translation">
+    {% if exercises %}{{ exercises.0.english_text }}{% endif %}
+  </div>
+  <div style="display:flex;gap:10px;justify-content:center;margin-top:18px;flex-wrap:wrap">
+    <button class="listen-btn" onclick="speakSentence(1.0)">🔊 Vitesse normale</button>
+    <button class="listen-btn" onclick="speakSentence(0.65)">🐢 Lentement</button>
+  </div>
+</div>
+
+<div class="mic-area">
+  <div class="waveform" id="waveform-sentences" data-waveform></div>
+  <button class="mic-btn" id="mic-btn-sentences" onclick="toggleSentence()">🎤</button>
+  <div class="mic-hint">Appuyez et récitez la phrase complète</div>
+</div>
+
+<div class="score-display" id="score-sentences">
+  <div class="score-number" id="score-num-s">—</div>
+  <div class="score-label"  id="score-label-s">—</div>
+  <div class="score-feedback" id="score-feedback-s"></div>
+</div>
+
+<div class="btn-row">
+  <button class="btn-primary" onclick="nextSentence()">Phrase suivante →</button>
+</div>
+
+{% endblock %}
+{% block extra_js %}
+<script>
+const sentences = [
+  {% for ex in exercises %}
+  { id: {{ ex.id }}, text: "{{ ex.french_text|escapejs }}", ipa: "{{ ex.ipa|escapejs }}", translation: "{{ ex.english_text|escapejs }}" },
+  {% endfor %}
+];
+let sentIdx = 0;
+let sentMic = null;
+
+function speakSentence(rate) {
+  const t = document.getElementById('sentence-target').textContent;
+  TTS.speak(t, rate);
+}
+
+function nextSentence() {
+  if (!sentences.length) return;
+  sentIdx = (sentIdx + 1) % sentences.length;
+  const s = sentences[sentIdx];
+  document.getElementById('sentence-target').textContent = s.text;
+  document.getElementById('sentence-ipa').textContent    = s.ipa;
+  document.getElementById('sentence-translation').textContent = s.translation;
+  document.getElementById('sentence-counter').textContent = `PHRASE ${sentIdx+1} / ${sentences.length}`;
+  document.getElementById('score-sentences').style.display = 'none';
+  speakSentence(1.0);
+}
+
+function toggleSentence() {
+  if (!sentences.length) { showToast('Ajoutez des phrases via l\'admin', 'info'); return; }
+  const btn = document.getElementById('mic-btn-sentences');
+  if (sentMic && sentMic.isRecording) { sentMic.stop(btn); return; }
+  sentMic = new MicRecorder({
+    exerciseId: sentences[sentIdx].id,
+    waveformId: 'waveform-sentences',
+    onScore: (r) => showScore(r, 'score-sentences'),
+    onError: (e) => showToast(e, 'error'),
+  });
+  sentMic.toggle(btn);
+}
+</script>
+{% endblock %}

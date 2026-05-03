@@ -1,0 +1,113 @@
+{% extends 'core/base.html' %}
+{% block title %}Mes Progrès — Parle Français{% endblock %}
+{% block page_title %}Mes Progrès{% endblock %}
+
+{% block content %}
+
+<!-- ── Summary Stats ─────────────────────────────────────────── -->
+<div class="stats-grid">
+  <div class="stat-card">
+    <div class="stat-number">{{ user.streak_days }}</div>
+    <div class="stat-label">🔥 Jours consécutifs</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-number">{{ total_attempts }}</div>
+    <div class="stat-label">🎯 Exercices réalisés</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-number">{{ avg_score }}%</div>
+    <div class="stat-label">📊 Score moyen</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-number">{{ user.xp }}</div>
+    <div class="stat-label">⭐ XP Total</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-number">{{ total_mastered }}</div>
+    <div class="stat-label">✓ Exercices maîtrisés</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-number">{{ user.level }}</div>
+    <div class="stat-label">🏅 Niveau actuel</div>
+  </div>
+</div>
+
+<!-- ── Weekly Chart ──────────────────────────────────────────── -->
+<div class="card">
+  <div class="card-title">Scores de la semaine</div>
+  <div class="bar-chart" id="weekly-chart"></div>
+</div>
+
+<!-- ── Phoneme Accuracy ──────────────────────────────────────── -->
+{% if phoneme_scores %}
+<div class="card">
+  <div class="card-title">Précision par phonème</div>
+  <div class="card-sub">Vos scores par groupe de sons</div>
+  {% for ps in phoneme_scores %}
+  <div style="margin-bottom:14px">
+    <div style="display:flex;justify-content:space-between;font-size:0.82rem;margin-bottom:5px">
+      <span style="font-family:'DM Mono',monospace;color:var(--accent)">{{ ps.phoneme_group.name }}</span>
+      <span style="color:{% if ps.average_score >= 70 %}var(--green){% else %}var(--red){% endif %}">
+        {{ ps.average_score|floatformat:0 }}%
+      </span>
+    </div>
+    <div style="height:6px;background:var(--card2);border-radius:10px;overflow:hidden">
+      <div style="height:100%;width:{{ ps.average_score|floatformat:0 }}%;
+                  background:linear-gradient(90deg,var(--accent),var(--accent2));
+                  border-radius:10px;transition:width 0.8s"></div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+<!-- ── Recent Activity ───────────────────────────────────────── -->
+<div class="card">
+  <div class="card-title">Activité récente</div>
+  {% if recent_attempts %}
+  {% for attempt in recent_attempts %}
+  <div style="display:flex;justify-content:space-between;align-items:center;
+              padding:10px 0;border-bottom:1px solid var(--border);font-size:0.85rem">
+    <div>
+      <span style="font-weight:600">{{ attempt.exercise.french_text }}</span>
+      <span style="color:var(--muted);margin-left:8px;font-size:0.78rem">
+        {{ attempt.exercise.ipa }}
+      </span>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px">
+      <span style="color:{% if attempt.passed %}var(--green){% else %}var(--red){% endif %};font-weight:700">
+        {{ attempt.overall_score }}%
+      </span>
+      <span style="color:var(--muted);font-size:0.75rem">
+        {{ attempt.created_at|timesince }} ago
+      </span>
+    </div>
+  </div>
+  {% endfor %}
+  {% else %}
+  <div style="color:var(--muted);font-size:0.85rem;padding:16px 0">
+    Pas encore d'activité. Commencez à pratiquer ! 🎤
+  </div>
+  {% endif %}
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Build weekly bar chart from Django data
+const weeklyData = {{ weekly_scores|safe }};
+
+window.addEventListener('DOMContentLoaded', () => {
+  const chart = document.getElementById('weekly-chart');
+  if (!chart || !weeklyData.length) return;
+
+  chart.innerHTML = weeklyData.map(d => `
+    <div class="bar-col">
+      <div class="bar-fill" style="height:${d.score}px" title="${d.score}%"></div>
+      <div class="bar-label">${d.day}</div>
+    </div>
+  `).join('');
+});
+</script>
+{% endblock %}
