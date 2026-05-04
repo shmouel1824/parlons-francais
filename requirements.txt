@@ -5,7 +5,7 @@ Django==4.2.9
 djangorestframework==3.14.0
 
 # ── Deep Learning — TensorFlow ───────────────────────────────
-tensorflow==2.16.1          # CNN models (PhonemeNet, SpeakerNet) — Python 3.11 compatible
+tensorflow==2.21.0        # CNN models (PhonemeNet, SpeakerNet) — Python 3.11 compatible
 
 # ── Audio Processing ─────────────────────────────────────────
 librosa==0.10.1             # mel spectrograms, audio loading
