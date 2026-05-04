@@ -6,7 +6,7 @@ from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = os.environ.get('SECRET_KEY', 'django-dev-key-change-in-production-please')
+SECRET_KEY = os.environ.get('SECRET_KEY', '%^x^r1xi@94ppqrxws$n2x9kax*4&!v(hc(q=)nyjoxgs&@pm7')
 # a8gkf3lvox55ysn^aw=y(4w#dzwk3$++8@*9iz!k=waa(m1(hf
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 ALLOWED_HOSTS = ['*']
