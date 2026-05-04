@@ -3,6 +3,7 @@ Parle Français — Django Settings (TensorFlow version)
 """
 import dj_database_url
 from pathlib import Path
+import os
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
