@@ -11,4 +11,4 @@ COPY . .
 
 RUN python manage.py collectstatic --noinput
 
-CMD python manage.py migrate && gunicorn parle_francais.wsgi --bind 0.0.0.0:$PORT
+CMD python manage.py migrate && gunicorn parle_francais.wsgi --bind 0.0.0.0:${PORT:-8000}
