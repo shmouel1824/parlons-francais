@@ -11,4 +11,6 @@ COPY . .
 
 RUN python manage.py collectstatic --noinput
 
-CMD python manage.py migrate && gunicorn parle_francais.wsgi --bind 0.0.0.0:${PORT:-8000}
+COPY start.sh .
+RUN chmod +x start.sh
+CMD ["bash", "start.sh"]
