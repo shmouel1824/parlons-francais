@@ -336,7 +336,7 @@ HOP_LENGTH     = 256
 DURATION       = 3.0
 TARGET_SIZE    = 128
 VOICE_THRESHOLD = 0.75   # spectrogram cosine similarity
-WORD_THRESHOLD  = 0.80   # word transcript fuzzy match
+WORD_THRESHOLD  = 0.65   # word transcript fuzzy match
 
 
 # ─────────────────────────────────────────────────────────────────────────────
