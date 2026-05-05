@@ -133,3 +133,5 @@ JAZZMIN_SETTINGS = {
         "auth.Group":              "fas fa-shield-alt",
     },
 }
+
+CSRF_TRUSTED_ORIGINS = ['https://web-production-210fd.up.railway.app']
