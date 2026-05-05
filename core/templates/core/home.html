@@ -18,9 +18,12 @@
   </div>
   <span style="color:var(--accent)">{{ user.xp }} XP</span>
 </div>
+{% if user.is_superuser %}
+<a href="/admin" style="font-size:0.75rem;color:var(--muted);text-decoration:none;padding:6px 12px;border:1px solid var(--border);border-radius:8px;">
+  ⚙️ Admin
+</a>
+{% endif %}
 {% endblock %}
-
-{% block content %}
 
 <!-- HERO -->
 <div class="hero">
