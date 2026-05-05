@@ -68,9 +68,10 @@ def home(request):
         })
 
     context = {
-        'user': request.user,
-        'module_progress': module_progress,
-    }
+    'user': request.user,
+    'module_progress': module_progress,
+    'phoneme_groups_preview': ExerciseCategory.objects.filter(category_type='phoneme')[:5],
+}
     return render(request, 'core/home.html', context)
 
 
