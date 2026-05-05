@@ -1,1 +1,1 @@
-web: gunicorn parle_francais.wsgi
+web: python manage.py collectstatic --noinput && python manage.py migrate && gunicorn parle_francais.wsgi
