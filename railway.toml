@@ -1,2 +1,2 @@
 [deploy]
-startCommand = "python manage.py collectstatic --noinput --clear && gunicorn parle_francais.wsgi"
+startCommand = "python manage.py migrate && python manage.py collectstatic --noinput && gunicorn parle_francais.wsgi"
