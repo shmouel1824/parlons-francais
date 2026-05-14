@@ -194,22 +194,29 @@ function injectLangSwitcher() {
   const switcher = document.createElement('div');
   switcher.id = 'lang-switcher';
   
-  switcher.innerHTML = `
-    <button class="lang-btn ${LangManager.current === 'fr' ? 'active' : ''}" data-lang="fr" onclick="LangManager.set('fr')">FR</button>
-    <button class="lang-btn ${LangManager.current === 'en' ? 'active' : ''}" data-lang="en" onclick="LangManager.set('en')">EN</button>
-    <button class="lang-btn ${LangManager.current === 'he' ? 'active' : ''}" data-lang="he" onclick="LangManager.set('he')">עב</button>
+ switcher.innerHTML = `
+    <button class="lang-btn ${LangManager.current === 'fr' ? 'active' : ''}" data-lang="fr" onclick="LangManager.set('fr')" title="Français">
+      <img src="https://flagcdn.com/w40/fr.png" width="24" height="16" style="border-radius:3px;vertical-align:middle">
+    </button>
+    <button class="lang-btn ${LangManager.current === 'en' ? 'active' : ''}" data-lang="en" onclick="LangManager.set('en')" title="English">
+      <img src="https://flagcdn.com/w40/us.png" width="24" height="16" style="border-radius:3px;vertical-align:middle">
+    </button>
+    <button class="lang-btn ${LangManager.current === 'he' ? 'active' : ''}" data-lang="he" onclick="LangManager.set('he')" title="עברית">
+      <img src="https://flagcdn.com/w40/il.png" width="24" height="16" style="border-radius:3px;vertical-align:middle">
+    </button>
   `;
   switcher.style.cssText = `
     position: fixed;
     top: 16px;
-    right: 16px;
-    z-index: 9999;
+    right: 80px;
+    z-index: 99999;
     display: flex;
     gap: 6px;
-    background: var(--card, #1e1e2e);
-    border: 1px solid var(--border, #333);
+    background: #1e1e2e;
+    border: 1px solid #444;
     border-radius: 12px;
     padding: 6px 10px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.5);
   `;
   document.body.appendChild(switcher);
 }
