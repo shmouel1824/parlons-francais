@@ -25,20 +25,21 @@
     </div>
 
     <div class="nav-section">Apprendre</div>
+  
     <a href="{% url 'home' %}" class="nav-item {% if request.resolver_match.url_name == 'home' %}active{% endif %}">
-      <span class="nav-icon">🏠</span> Accueil
+      <span class="nav-icon">🏠</span> <span data-i18n="home">Accueil</span>
     </a>
     <a href="{% url 'alphabet' %}" class="nav-item {% if request.resolver_match.url_name == 'alphabet' %}active{% endif %}">
-      <span class="nav-icon">🔤</span> Alphabet
+      <span class="nav-icon">🔤</span> <span data-i18n="alphabet">Alphabet</span>
     </a>
     <a href="{% url 'phonemes' %}" class="nav-item {% if request.resolver_match.url_name == 'phonemes' %}active{% endif %}">
-      <span class="nav-icon">🔊</span> Phonèmes
+      <span class="nav-icon">🔊</span> <span data-i18n="phonemes">Phonèmes</span>
     </a>
     <a href="{% url 'words' %}" class="nav-item {% if request.resolver_match.url_name == 'words' %}active{% endif %}">
-      <span class="nav-icon">📝</span> Mots
+      <span class="nav-icon">📝</span> <span data-i18n="words">Mots</span>
     </a>
     <a href="{% url 'sentences' %}" class="nav-item {% if request.resolver_match.url_name == 'sentences' %}active{% endif %}">
-      <span class="nav-icon">💬</span> Phrases
+      <span class="nav-icon">💬</span> <span data-i18n="sentences">Phrases</span>
     </a>
 
     <div class="nav-section">Tester</div>
@@ -67,8 +68,8 @@
           <div class="user-level">⭐ Niveau {{ user.level }} — {{ user.xp }} XP</div>
         </div>
       </div>
-      <a href="{% url 'logout' %}" class="nav-item" style="margin-top:8px;font-size:0.8rem">
-        <span class="nav-icon">🚪</span> Déconnexion
+     <a href="{% url 'logout' %}" class="nav-item" style="margin-top:8px;font-size:0.8rem">
+        <span class="nav-icon">🚪</span> <span data-i18n="logout">Déconnexion</span>
       </a>
       {% endif %}
     </div>
@@ -133,6 +134,8 @@
     apiDicteeUrl: '{% url "api_dictee" %}',
   };
 </script>
+
+<script src="{% static 'core/js/translations.js' %}"></script>
 {% block extra_js %}{% endblock %}
 
 </body>
