@@ -140,7 +140,9 @@
     box-shadow: 0 4px 20px rgba(79, 142, 247, 0.3);
   }
 
-  .mic-record-btn:hover { transform: scale(1.05); }
+  .mic-record-btn:hover {
+    transform: scale(1.05);
+  }
 
   .mic-record-btn.recording {
     animation: pulse-red 1.2s infinite;
@@ -148,9 +150,17 @@
   }
 
   @keyframes pulse-red {
-    0%   { box-shadow: 0 0 0 0 rgba(240, 80, 96, 0.5); }
-    70%  { box-shadow: 0 0 0 18px rgba(240, 80, 96, 0); }
-    100% { box-shadow: 0 0 0 0 rgba(240, 80, 96, 0); }
+    0% {
+      box-shadow: 0 0 0 0 rgba(240, 80, 96, 0.5);
+    }
+
+    70% {
+      box-shadow: 0 0 0 18px rgba(240, 80, 96, 0);
+    }
+
+    100% {
+      box-shadow: 0 0 0 0 rgba(240, 80, 96, 0);
+    }
   }
 
   .voice-status {
@@ -160,8 +170,14 @@
     min-height: 20px;
     transition: color 0.3s;
   }
-  .voice-status.active  { color: var(--red); }
-  .voice-status.success { color: var(--green); }
+
+  .voice-status.active {
+    color: var(--red);
+  }
+
+  .voice-status.success {
+    color: var(--green);
+  }
 
   .waveform-mini {
     display: flex;
@@ -220,7 +236,9 @@
   .divider::before {
     content: '';
     position: absolute;
-    left: 0; right: 0; top: 50%;
+    left: 0;
+    right: 0;
+    top: 50%;
     height: 1px;
     background: var(--border);
   }
@@ -245,24 +263,25 @@
 
     <div class="auth-card">
       <div class="tabs">
-        <div class="tab active" id="tab-login"    onclick="switchAuthTab('login')">Se connecter</div>
-        <div class="tab"        id="tab-register" onclick="switchAuthTab('register')">S'inscrire</div>
+        <div class="tab active" id="tab-login" onclick="switchAuthTab('login')"><span data-i18n="login_title">Se
+            connecter</span></div>
+        <div class="tab" id="tab-register" onclick="switchAuthTab('register')"><span
+            data-i18n="register_title">S'inscrire</span></div>
       </div>
 
       <!-- ══ LOGIN FORM ══════════════════════════════════════ -->
       <div id="form-login">
         <div class="form-group">
-          <label class="form-label">Nom d'utilisateur</label>
-          <input type="text" class="form-input" id="login-username"
+          <label class="form-label" data-i18n="username">Nom d'utilisateur</label>
+          <input type="text" class="form-input" id="login-username" data-i18n-placeholder="username"
             placeholder="votre nom d'utilisateur" autocomplete="username" />
         </div>
 
         <div class="form-group">
-          <label class="form-label">Mot de passe vocal — Prononcez votre mot</label>
+          <label class="form-label" data-i18n="voice_password">Mot de passe vocal</label>
           <div class="voice-password-box">
-            <div class="vp-instructions">
-              Cliquez le micro, prononcez votre mot de passe,<br>
-              puis cliquez à nouveau pour arrêter.
+            <div class="vp-instructions" data-i18n="login_instructions">
+              Cliquez le micro, prononcez votre mot de passe, puis cliquez à nouveau pour arrêter.
             </div>
             <div class="waveform-mini" id="wf-login">
               <div class="wave-bar" style="height:6px"></div>
@@ -287,49 +306,49 @@
               <div class="wave-bar" style="height:8px"></div>
             </div>
             <button class="mic-record-btn" id="mic-login" onclick="startVoiceLogin()">🎤</button>
-            <div class="voice-status" id="login-status">Appuyez pour commencer</div>
+            <div class="voice-status" id="login-status" data-i18n="press_to_start">Appuyez pour commencer</div>
           </div>
         </div>
 
         <div class="divider"><span>ou</span></div>
 
         <div class="form-group">
-          <label class="form-label">Mot de passe texte (optionnel)</label>
-          <input type="password" class="form-input" id="login-password"
-            placeholder="mot de passe" autocomplete="current-password" />
+          <label class="form-label" data-i18n="text_password">Mot de passe texte (optionnel)</label>
+          <input type="password" class="form-input" id="login-password" placeholder="mot de passe"
+            autocomplete="current-password" />
         </div>
 
         <button class="btn-submit" id="btn-text-login" onclick="handleTextLogin()">
-          🔐 Se connecter
+          🔐 <span data-i18n="connect">Se connecter</span>
         </button>
       </div>
 
       <!-- ══ REGISTER FORM ═══════════════════════════════════ -->
       <div id="form-register" style="display:none">
         <div class="form-group">
-          <label class="form-label">Nom d'utilisateur</label>
-          <input type="text" class="form-input" id="reg-username" placeholder="choisir un nom" />
+          <label class="form-label" data-i18n="username">Nom d'utilisateur</label>
+          <input type="text" class="form-input" id="reg-username" data-i18n-placeholder="username"
+            placeholder="choisir un nom" />
         </div>
 
         <div class="form-group">
-          <label class="form-label">Email</label>
+          <label class="form-label" data-i18n="email">Email</label>
           <input type="email" class="form-input" id="reg-email" placeholder="votre@email.com" />
         </div>
 
         <div class="form-group">
-          <label class="form-label">Votre mot de passe vocal (un mot en français)</label>
-          <input type="text" class="form-input" id="reg-password-word"
-            placeholder="ex: bonjour, merci, soleil…"
+          <label class="form-label" data-i18n="choose_voice_word">Votre mot de passe vocal (un mot en français)</label>
+          <input type="text" class="form-input" id="reg-password-word" placeholder="ex: bonjour, merci, soleil…"
             oninput="updatePasswordWordDisplay()" />
-          <div style="font-size:0.72rem;color:var(--muted);margin-top:4px">
+          <div style="font-size:0.72rem;color:var(--muted);margin-top:4px" data-i18n="voice_word_hint">
             Choisissez un mot français que vous prononcerez pour vous connecter
           </div>
         </div>
 
         <div class="form-group">
-          <label class="form-label">Enregistrer votre voix — Prononcez le mot</label>
+          <label class="form-label" data-i18n="voice_password">Enregistrer votre voix — Prononcez le mot</label>
           <div class="voice-password-box">
-            <div class="vp-instructions">
+            <div class="vp-instructions" data-i18n="voice_instructions">
               Cliquez le micro, prononcez votre mot, puis cliquez à nouveau pour arrêter.
             </div>
             <div class="vp-word" id="reg-word-display">—</div>
@@ -356,362 +375,364 @@
               <div class="wave-bar" style="height:8px"></div>
             </div>
             <button class="mic-record-btn" id="mic-register" onclick="startVoiceRegister()">🎤</button>
-            <div class="voice-status" id="register-status">Entrez un mot puis appuyez</div>
+            <div class="voice-status" id="register-status" data-i18n="enter_word_then_press">Entrez un mot puis appuyez
+            </div>
           </div>
         </div>
 
         <button class="btn-submit" onclick="handleRegisterSubmit()">
-          🎤 Créer mon compte vocal
+          🎤 <span data-i18n="create_account">Créer mon compte vocal</span>
         </button>
       </div>
 
     </div>
 
     <p style="text-align:center;font-size:0.75rem;color:var(--muted);margin-top:20px">
-  Votre voix est chiffrée et protégée. 🔒
-</p>
-<p style="text-align:center;margin-top:10px">
-  <a href="/admin" style="font-size:0.7rem;color:var(--muted);opacity:0.5;text-decoration:none;">
-    Administration
-  </a>
-</p>
+      <span data-i18n="voice_protected">Votre voix est chiffrée et protégée.</span> 🔒
+    </p>
+    <p style="text-align:center;margin-top:10px">
+      <a href="/admin" style="font-size:0.7rem;color:var(--muted);opacity:0.5;text-decoration:none;"
+        data-i18n="administration">
+        Administration
+      </a>
+    </p>
   </div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
-(function() {
-'use strict';
+  (function () {
+    'use strict';
 
-if (typeof CSRF_TOKEN === 'undefined') var CSRF_TOKEN = '{{ csrf_token }}';
+    if (typeof CSRF_TOKEN === 'undefined') var CSRF_TOKEN = '{{ csrf_token }}';
 
-// ── Tab switching ─────────────────────────────────────────────────────────
-function switchAuthTab(tab) {
-  document.getElementById('tab-login').classList.toggle('active', tab === 'login');
-  document.getElementById('tab-register').classList.toggle('active', tab === 'register');
-  document.getElementById('form-login').style.display    = tab === 'login'    ? 'block' : 'none';
-  document.getElementById('form-register').style.display = tab === 'register' ? 'block' : 'none';
-}
-
-function updatePasswordWordDisplay() {
-  const word = document.getElementById('reg-password-word').value.trim();
-  document.getElementById('reg-word-display').textContent = word || '—';
-}
-
-// ── Waveform animation ────────────────────────────────────────────────────
-const _waveIntervals = {};
-
-function animateWaveformMini(id, active) {
-  const container = document.getElementById(id);
-  if (!container) return;
-  const bars = container.querySelectorAll('.wave-bar');
-
-  if (_waveIntervals[id]) {
-    clearInterval(_waveIntervals[id]);
-    delete _waveIntervals[id];
-  }
-
-  if (active) {
-    _waveIntervals[id] = setInterval(() => {
-      bars.forEach(b => { b.style.height = (4 + Math.random() * 22) + 'px'; });
-    }, 120);
-  } else {
-    const heights = [6,8,12,16,20,14,18,10,22,15,9,19,13,17,11,21,7,16,12,8];
-    bars.forEach((b, i) => { b.style.height = heights[i % heights.length] + 'px'; });
-  }
-}
-
-// ── Toast notification ────────────────────────────────────────────────────
-function showToast(message, type) {
-  type = type || 'info';
-  const old = document.getElementById('__toast__');
-  if (old) old.remove();
-  const colors = { success: '#22c55e', error: '#ef4444', info: '#6366f1' };
-  const toast = document.createElement('div');
-  toast.id = '__toast__';
-  toast.textContent = message;
-  toast.style.cssText =
-    'position:fixed;bottom:30px;left:50%;transform:translateX(-50%);' +
-    'background:' + (colors[type] || colors.info) + ';color:#fff;' +
-    'padding:12px 28px;border-radius:12px;font-size:0.92rem;' +
-    'z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,0.45);' +
-    'max-width:90vw;text-align:center;';
-  document.body.appendChild(toast);
-  setTimeout(function(){ toast.remove(); }, 3800);
-}
-
-// ════════════════════════════════════════════════════════════════════════════
-//  VoiceAuth — manual start/stop recorder
-// ════════════════════════════════════════════════════════════════════════════
-const VoiceAuth = (function() {
-
-  var mediaStream     = null;
-  var _activeRecorder = null;
-  var _activeChunks   = [];
-  var _activeResolve  = null;
-  var _speechRec      = null;
-
-  function getMic() {
-    return navigator.mediaDevices.getUserMedia({ audio: true }).then(function(s) {
-      mediaStream = s;
-      return s;
-    });
-  }
-
-  // Start recording — returns a promise that resolves when stopRecording() is called
-  function recordAudio() {
-    return new Promise(function(resolve, reject) {
-      var streamPromise = mediaStream ? Promise.resolve(mediaStream) : getMic();
-      streamPromise.then(function(stream) {
-        _activeChunks  = [];
-        _activeResolve = resolve;
-        _activeRecorder = new MediaRecorder(stream);
-        _activeRecorder.ondataavailable = function(e) {
-          if (e.data.size > 0) _activeChunks.push(e.data);
-        };
-        _activeRecorder.onstop = function() {
-          resolve(new Blob(_activeChunks, { type: 'audio/webm' }));
-        };
-        _activeRecorder.start();
-      }).catch(reject);
-    });
-  }
-
-  function stopRecording() {
-    if (_activeRecorder && _activeRecorder.state === 'recording') {
-      _activeRecorder.stop();
-      _activeRecorder = null;
+    // ── Tab switching ─────────────────────────────────────────────────────────
+    function switchAuthTab(tab) {
+      document.getElementById('tab-login').classList.toggle('active', tab === 'login');
+      document.getElementById('tab-register').classList.toggle('active', tab === 'register');
+      document.getElementById('form-login').style.display = tab === 'login' ? 'block' : 'none';
+      document.getElementById('form-register').style.display = tab === 'register' ? 'block' : 'none';
     }
-    if (_speechRec) {
-      try { _speechRec.stop(); } catch(e) {}
-      _speechRec = null;
+
+    function updatePasswordWordDisplay() {
+      const word = document.getElementById('reg-password-word').value.trim();
+      document.getElementById('reg-word-display').textContent = word || '—';
     }
-  }
 
-  function startSpeechRecognition(lang) {
-    var transcript = '';
-    var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SR) return { getTranscript: function() { return transcript; } };
+    // ── Waveform animation ────────────────────────────────────────────────────
+    const _waveIntervals = {};
 
-    _speechRec = new SR();
-    _speechRec.lang = lang || 'fr-FR';
-    _speechRec.interimResults = false;
-    _speechRec.maxAlternatives = 1;
-    _speechRec.continuous = true;
+    function animateWaveformMini(id, active) {
+      const container = document.getElementById(id);
+      if (!container) return;
+      const bars = container.querySelectorAll('.wave-bar');
 
-    _speechRec.onresult = function(e) {
-      var parts = [];
-      for (var i = 0; i < e.results.length; i++) {
-        parts.push(e.results[i][0].transcript.trim().toLowerCase());
+      if (_waveIntervals[id]) {
+        clearInterval(_waveIntervals[id]);
+        delete _waveIntervals[id];
       }
-      transcript = parts.join(' ');
-    };
-    _speechRec.onerror = function() {};
 
-    try { _speechRec.start(); } catch(e) {}
+      if (active) {
+        _waveIntervals[id] = setInterval(() => {
+          bars.forEach(b => { b.style.height = (4 + Math.random() * 22) + 'px'; });
+        }, 120);
+      } else {
+        const heights = [6, 8, 12, 16, 20, 14, 18, 10, 22, 15, 9, 19, 13, 17, 11, 21, 7, 16, 12, 8];
+        bars.forEach((b, i) => { b.style.height = heights[i % heights.length] + 'px'; });
+      }
+    }
 
-    return { getTranscript: function() { return transcript; } };
-  }
+    // ── Toast notification ────────────────────────────────────────────────────
+    function showToast(message, type) {
+      type = type || 'info';
+      const old = document.getElementById('__toast__');
+      if (old) old.remove();
+      const colors = { success: '#22c55e', error: '#ef4444', info: '#6366f1' };
+      const toast = document.createElement('div');
+      toast.id = '__toast__';
+      toast.textContent = message;
+      toast.style.cssText =
+        'position:fixed;bottom:30px;left:50%;transform:translateX(-50%);' +
+        'background:' + (colors[type] || colors.info) + ';color:#fff;' +
+        'padding:12px 28px;border-radius:12px;font-size:0.92rem;' +
+        'z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,0.45);' +
+        'max-width:90vw;text-align:center;';
+      document.body.appendChild(toast);
+      setTimeout(function () { toast.remove(); }, 3800);
+    }
 
-  function register(username, email, passwordWord) {
-    var recognition = startSpeechRecognition('fr-FR');
+    // ════════════════════════════════════════════════════════════════════════════
+    //  VoiceAuth — manual start/stop recorder
+    // ════════════════════════════════════════════════════════════════════════════
+    const VoiceAuth = (function () {
 
-    return recordAudio().then(function(audioBlob) {
-      var recognizedText = recognition.getTranscript();
+      var mediaStream = null;
+      var _activeRecorder = null;
+      var _activeChunks = [];
+      var _activeResolve = null;
+      var _speechRec = null;
+
+      function getMic() {
+        return navigator.mediaDevices.getUserMedia({ audio: true }).then(function (s) {
+          mediaStream = s;
+          return s;
+        });
+      }
+
+      // Start recording — returns a promise that resolves when stopRecording() is called
+      function recordAudio() {
+        return new Promise(function (resolve, reject) {
+          var streamPromise = mediaStream ? Promise.resolve(mediaStream) : getMic();
+          streamPromise.then(function (stream) {
+            _activeChunks = [];
+            _activeResolve = resolve;
+            _activeRecorder = new MediaRecorder(stream);
+            _activeRecorder.ondataavailable = function (e) {
+              if (e.data.size > 0) _activeChunks.push(e.data);
+            };
+            _activeRecorder.onstop = function () {
+              resolve(new Blob(_activeChunks, { type: 'audio/webm' }));
+            };
+            _activeRecorder.start();
+          }).catch(reject);
+        });
+      }
+
+      function stopRecording() {
+        if (_activeRecorder && _activeRecorder.state === 'recording') {
+          _activeRecorder.stop();
+          _activeRecorder = null;
+        }
+        if (_speechRec) {
+          try { _speechRec.stop(); } catch (e) { }
+          _speechRec = null;
+        }
+      }
+
+      function startSpeechRecognition(lang) {
+        var transcript = '';
+        var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SR) return { getTranscript: function () { return transcript; } };
+
+        _speechRec = new SR();
+        _speechRec.lang = lang || 'fr-FR';
+        _speechRec.interimResults = false;
+        _speechRec.maxAlternatives = 1;
+        _speechRec.continuous = true;
+
+        _speechRec.onresult = function (e) {
+          var parts = [];
+          for (var i = 0; i < e.results.length; i++) {
+            parts.push(e.results[i][0].transcript.trim().toLowerCase());
+          }
+          transcript = parts.join(' ');
+        };
+        _speechRec.onerror = function () { };
+
+        try { _speechRec.start(); } catch (e) { }
+
+        return { getTranscript: function () { return transcript; } };
+      }
+
+      function register(username, email, passwordWord) {
+        var recognition = startSpeechRecognition('fr-FR');
+
+        return recordAudio().then(function (audioBlob) {
+          var recognizedText = recognition.getTranscript();
+
+          var fd = new FormData();
+          fd.append('audio', audioBlob, 'voice_register.webm');
+          fd.append('recognized_text', recognizedText);
+          fd.append('username', username);
+          fd.append('email', email || '');
+          fd.append('password_word', passwordWord);
+
+          return fetch('/api/voice/register/', {
+            method: 'POST',
+            headers: { 'X-CSRFToken': CSRF_TOKEN },
+            body: fd
+          }).then(function (r) { return r.json(); });
+        });
+      }
+
+      function login(username) {
+        var recognition = startSpeechRecognition('fr-FR');
+
+        return recordAudio().then(function (audioBlob) {
+          var recognizedText = recognition.getTranscript();
+
+          var fd = new FormData();
+          fd.append('audio', audioBlob, 'voice_login.webm');
+          fd.append('recognized_text', recognizedText);
+          fd.append('username', username);
+
+          return fetch('/api/voice/login/', {
+            method: 'POST',
+            headers: { 'X-CSRFToken': CSRF_TOKEN },
+            body: fd
+          }).then(function (r) { return r.json(); });
+        });
+      }
+
+      return { login: login, register: register, stopRecording: stopRecording };
+
+    })();
+
+    // ════════════════════════════════════════════════════════════════════════════
+    //  UI HANDLERS
+    // ════════════════════════════════════════════════════════════════════════════
+
+    var _loginRecording = false;
+    var _registerRecording = false;
+
+    function startVoiceLogin() {
+      var username = document.getElementById('login-username').value.trim();
+      if (!username) { showToast("Entrez votre nom d'utilisateur d'abord", 'error'); return; }
+
+      var btn = document.getElementById('mic-login');
+      var status = document.getElementById('login-status');
+
+      if (!_loginRecording) {
+        // START
+        _loginRecording = true;
+        btn.classList.add('recording');
+        btn.textContent = '⏹';
+        status.textContent = '🔴 Prononcez votre mot de passe puis cliquez pour arrêter';
+        status.className = 'voice-status active';
+        animateWaveformMini('wf-login', true);
+
+        VoiceAuth.login(username).then(function (result) {
+          _loginRecording = false;
+          btn.classList.remove('recording');
+          btn.textContent = '🎤';
+          animateWaveformMini('wf-login', false);
+
+          if (result.authenticated) {
+            status.textContent = result.message || '✓ Voix reconnue !';
+            status.className = 'voice-status success';
+            showToast(result.message || '✓ Connexion réussie !', 'success');
+            setTimeout(function () { window.location.href = result.redirect || '/'; }, 1200);
+          } else {
+            var msg = result.message || result.error || 'Voix non reconnue. Réessayez.';
+            status.textContent = msg;
+            status.className = 'voice-status error';
+            showToast(msg, 'error');
+          }
+        }).catch(function (err) {
+          _loginRecording = false;
+          btn.classList.remove('recording');
+          btn.textContent = '🎤';
+          animateWaveformMini('wf-login', false);
+          var msg = 'Erreur microphone : ' + err.message;
+          status.textContent = msg;
+          status.className = 'voice-status error';
+          showToast(msg, 'error');
+        });
+
+      } else {
+        // STOP
+        _loginRecording = false;
+        VoiceAuth.stopRecording();
+        btn.textContent = '🎤';
+        animateWaveformMini('wf-login', false);
+      }
+    }
+
+    function startVoiceRegister() {
+      var username = document.getElementById('reg-username').value.trim();
+      var email = document.getElementById('reg-email').value.trim();
+      var passwordWord = document.getElementById('reg-password-word').value.trim().toLowerCase();
+
+      if (!username) { showToast("Entrez votre nom d'utilisateur", 'error'); return; }
+      if (!passwordWord) { showToast('Entrez votre mot de passe vocal', 'error'); return; }
+
+      var btn = document.getElementById('mic-register');
+      var status = document.getElementById('register-status');
+
+      if (!_registerRecording) {
+        // START
+        _registerRecording = true;
+        btn.classList.add('recording');
+        btn.textContent = '⏹';
+        status.textContent = '🔴 Prononcez "' + passwordWord + '" puis cliquez pour arrêter';
+        status.className = 'voice-status active';
+        animateWaveformMini('wf-register', true);
+
+        VoiceAuth.register(username, email, passwordWord).then(function (result) {
+          _registerRecording = false;
+          btn.classList.remove('recording');
+          btn.textContent = '🎤';
+          animateWaveformMini('wf-register', false);
+
+          if (result.success) {
+            status.textContent = result.message || '✓ Compte créé !';
+            status.className = 'voice-status success';
+            showToast(result.message || '✓ Inscription réussie !', 'success');
+            setTimeout(function () { window.location.href = result.redirect || '/'; }, 1500);
+          } else {
+            var msg = result.error || "Erreur d'inscription. Réessayez.";
+            status.textContent = msg;
+            status.className = 'voice-status error';
+            showToast(msg, 'error');
+          }
+        }).catch(function (err) {
+          _registerRecording = false;
+          btn.classList.remove('recording');
+          btn.textContent = '🎤';
+          animateWaveformMini('wf-register', false);
+          var msg = 'Erreur microphone : ' + err.message;
+          status.textContent = msg;
+          status.className = 'voice-status error';
+          showToast(msg, 'error');
+        });
+
+      } else {
+        // STOP
+        _registerRecording = false;
+        VoiceAuth.stopRecording();
+        btn.textContent = '🎤';
+        animateWaveformMini('wf-register', false);
+      }
+    }
+
+    function handleRegisterSubmit() {
+      startVoiceRegister();
+    }
+
+    function handleTextLogin() {
+      var username = document.getElementById('login-username').value.trim();
+      var pwdEl = document.getElementById('login-password');
+      var password = pwdEl ? pwdEl.value : '';
+
+      if (!username) { showToast("Entrez votre nom d'utilisateur", 'error'); return; }
 
       var fd = new FormData();
-      fd.append('audio',           audioBlob, 'voice_register.webm');
-      fd.append('recognized_text', recognizedText);
-      fd.append('username',        username);
-      fd.append('email',           email || '');
-      fd.append('password_word',   passwordWord);
+      fd.append('username', username);
+      fd.append('password', password);
 
-      return fetch('/api/voice/register/', {
+      fetch('/api/text-login/', {
         method: 'POST',
         headers: { 'X-CSRFToken': CSRF_TOKEN },
         body: fd
-      }).then(function(r) { return r.json(); });
-    });
-  }
+      }).then(function (r) { return r.json(); })
+        .then(function (data) {
+          if (data.success) {
+            window.location.href = data.redirect || '/';
+          } else {
+            showToast(data.error || 'Identifiants incorrects', 'error');
+          }
+        });
+    }
 
-  function login(username) {
-    var recognition = startSpeechRecognition('fr-FR');
+    // Expose to global scope
+    window.switchAuthTab = switchAuthTab;
+    window.updatePasswordWordDisplay = updatePasswordWordDisplay;
+    window.startVoiceLogin = startVoiceLogin;
+    window.startVoiceRegister = startVoiceRegister;
+    window.handleRegisterSubmit = handleRegisterSubmit;
+    window.handleTextLogin = handleTextLogin;
 
-    return recordAudio().then(function(audioBlob) {
-      var recognizedText = recognition.getTranscript();
-
-      var fd = new FormData();
-      fd.append('audio',           audioBlob, 'voice_login.webm');
-      fd.append('recognized_text', recognizedText);
-      fd.append('username',        username);
-
-      return fetch('/api/voice/login/', {
-        method: 'POST',
-        headers: { 'X-CSRFToken': CSRF_TOKEN },
-        body: fd
-      }).then(function(r) { return r.json(); });
-    });
-  }
-
-  return { login: login, register: register, stopRecording: stopRecording };
-
-})();
-
-// ════════════════════════════════════════════════════════════════════════════
-//  UI HANDLERS
-// ════════════════════════════════════════════════════════════════════════════
-
-var _loginRecording    = false;
-var _registerRecording = false;
-
-function startVoiceLogin() {
-  var username = document.getElementById('login-username').value.trim();
-  if (!username) { showToast("Entrez votre nom d'utilisateur d'abord", 'error'); return; }
-
-  var btn    = document.getElementById('mic-login');
-  var status = document.getElementById('login-status');
-
-  if (!_loginRecording) {
-    // START
-    _loginRecording = true;
-    btn.classList.add('recording');
-    btn.textContent = '⏹';
-    status.textContent = '🔴 Prononcez votre mot de passe puis cliquez pour arrêter';
-    status.className = 'voice-status active';
-    animateWaveformMini('wf-login', true);
-
-    VoiceAuth.login(username).then(function(result) {
-      _loginRecording = false;
-      btn.classList.remove('recording');
-      btn.textContent = '🎤';
-      animateWaveformMini('wf-login', false);
-
-      if (result.authenticated) {
-        status.textContent = result.message || '✓ Voix reconnue !';
-        status.className = 'voice-status success';
-        showToast(result.message || '✓ Connexion réussie !', 'success');
-        setTimeout(function() { window.location.href = result.redirect || '/'; }, 1200);
-      } else {
-        var msg = result.message || result.error || 'Voix non reconnue. Réessayez.';
-        status.textContent = msg;
-        status.className = 'voice-status error';
-        showToast(msg, 'error');
-      }
-    }).catch(function(err) {
-      _loginRecording = false;
-      btn.classList.remove('recording');
-      btn.textContent = '🎤';
-      animateWaveformMini('wf-login', false);
-      var msg = 'Erreur microphone : ' + err.message;
-      status.textContent = msg;
-      status.className = 'voice-status error';
-      showToast(msg, 'error');
-    });
-
-  } else {
-    // STOP
-    _loginRecording = false;
-    VoiceAuth.stopRecording();
-    btn.textContent = '🎤';
-    animateWaveformMini('wf-login', false);
-  }
-}
-
-function startVoiceRegister() {
-  var username     = document.getElementById('reg-username').value.trim();
-  var email        = document.getElementById('reg-email').value.trim();
-  var passwordWord = document.getElementById('reg-password-word').value.trim().toLowerCase();
-
-  if (!username)     { showToast("Entrez votre nom d'utilisateur", 'error');  return; }
-  if (!passwordWord) { showToast('Entrez votre mot de passe vocal', 'error'); return; }
-
-  var btn    = document.getElementById('mic-register');
-  var status = document.getElementById('register-status');
-
-  if (!_registerRecording) {
-    // START
-    _registerRecording = true;
-    btn.classList.add('recording');
-    btn.textContent = '⏹';
-    status.textContent = '🔴 Prononcez "' + passwordWord + '" puis cliquez pour arrêter';
-    status.className = 'voice-status active';
-    animateWaveformMini('wf-register', true);
-
-    VoiceAuth.register(username, email, passwordWord).then(function(result) {
-      _registerRecording = false;
-      btn.classList.remove('recording');
-      btn.textContent = '🎤';
-      animateWaveformMini('wf-register', false);
-
-      if (result.success) {
-        status.textContent = result.message || '✓ Compte créé !';
-        status.className = 'voice-status success';
-        showToast(result.message || '✓ Inscription réussie !', 'success');
-        setTimeout(function() { window.location.href = result.redirect || '/'; }, 1500);
-      } else {
-        var msg = result.error || "Erreur d'inscription. Réessayez.";
-        status.textContent = msg;
-        status.className = 'voice-status error';
-        showToast(msg, 'error');
-      }
-    }).catch(function(err) {
-      _registerRecording = false;
-      btn.classList.remove('recording');
-      btn.textContent = '🎤';
-      animateWaveformMini('wf-register', false);
-      var msg = 'Erreur microphone : ' + err.message;
-      status.textContent = msg;
-      status.className = 'voice-status error';
-      showToast(msg, 'error');
-    });
-
-  } else {
-    // STOP
-    _registerRecording = false;
-    VoiceAuth.stopRecording();
-    btn.textContent = '🎤';
-    animateWaveformMini('wf-register', false);
-  }
-}
-
-function handleRegisterSubmit() {
-  startVoiceRegister();
-}
-
-function handleTextLogin() {
-  var username = document.getElementById('login-username').value.trim();
-  var pwdEl    = document.getElementById('login-password');
-  var password = pwdEl ? pwdEl.value : '';
-
-  if (!username) { showToast("Entrez votre nom d'utilisateur", 'error'); return; }
-
-  var fd = new FormData();
-  fd.append('username', username);
-  fd.append('password', password);
-
-  fetch('/api/text-login/', {
-    method: 'POST',
-    headers: { 'X-CSRFToken': CSRF_TOKEN },
-    body: fd
-  }).then(function(r) { return r.json(); })
-    .then(function(data) {
-      if (data.success) {
-        window.location.href = data.redirect || '/';
-      } else {
-        showToast(data.error || 'Identifiants incorrects', 'error');
-      }
-    });
-}
-
-// Expose to global scope
-window.switchAuthTab             = switchAuthTab;
-window.updatePasswordWordDisplay = updatePasswordWordDisplay;
-window.startVoiceLogin           = startVoiceLogin;
-window.startVoiceRegister        = startVoiceRegister;
-window.handleRegisterSubmit      = handleRegisterSubmit;
-window.handleTextLogin           = handleTextLogin;
-
-})();
+  })();
 </script>
 {% endblock %}

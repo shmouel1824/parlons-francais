@@ -193,10 +193,11 @@ const LangManager = {
 function injectLangSwitcher() {
   const switcher = document.createElement('div');
   switcher.id = 'lang-switcher';
+  
   switcher.innerHTML = `
-    <button class="lang-btn ${LangManager.current === 'fr' ? 'active' : ''}" data-lang="fr" onclick="LangManager.set('fr')">🇫🇷</button>
-    <button class="lang-btn ${LangManager.current === 'en' ? 'active' : ''}" data-lang="en" onclick="LangManager.set('en')">🇬🇧</button>
-    <button class="lang-btn ${LangManager.current === 'he' ? 'active' : ''}" data-lang="he" onclick="LangManager.set('he')">🇮🇱</button>
+    <button class="lang-btn ${LangManager.current === 'fr' ? 'active' : ''}" data-lang="fr" onclick="LangManager.set('fr')">FR</button>
+    <button class="lang-btn ${LangManager.current === 'en' ? 'active' : ''}" data-lang="en" onclick="LangManager.set('en')">EN</button>
+    <button class="lang-btn ${LangManager.current === 'he' ? 'active' : ''}" data-lang="he" onclick="LangManager.set('he')">עב</button>
   `;
   switcher.style.cssText = `
     position: fixed;
